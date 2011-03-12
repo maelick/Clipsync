@@ -1,0 +1,107 @@
+\documentclass[12pt,a4paper,oneside, titlepage]{report}
+
+\usepackage{times}
+\usepackage[french,frenchb]{babel}
+%\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+%\usepackage{amsmath}
+%\usepackage{amsfonts}
+%\usepackage{amscd}
+%\usepackage{amstext}
+%\usepackage{amssymb}
+%\usepackage{bar}
+\usepackage{color}
+%\usepackage{mathrsfs}
+\usepackage{graphicx}
+%\usepackage{calligra}
+\usepackage{amsthm}
+%\usepackage{multirow}
+%\usepackage{tabularx}
+%\usepackage{layout}
+%\pagestyle{headings}
+\usepackage{fancyhdr}
+\usepackage{array}
+\usepackage{lscape}
+\usepackage{rotating}
+\usepackage[style=alphabetic,sortcites=true,block=space]{biblatex}
+% \usepackage{pstricks}
+\usepackage{pstricks}
+\pagestyle{fancy}
+
+\bibliography{biblio}
+
+\setlength{\textheight}{630pt}
+\setlength{\footskip}{30pt}
+\newtheorem{defi}{D\'efinition}[section]
+\newtheorem{note}{Note}[section]
+\newtheorem{propriete}{Propri\'et\'e}[section]
+\newtheorem{exemple}{Exemple}[section]
+\newtheorem{exemple_util}{Exemple d'utilisation}
+\newtheorem{corollaire}{Corollaire}[section]
+\newtheorem{rem}{Remarque}[section]
+\newtheorem{thm}{Th\'eor\`eme}[section]
+\newtheorem{illustration}{Illustration}[section]
+\newenvironment{demonstration}{\begin{proof}[\textnormal{\textbf{Preuve.}}]}{\end{proof}}
+\definecolor{gris}{gray}{0.45}
+\setlength{\parindent}{1cm}
+\newcommand{\textcalli}[1]{{\small{\textbf{$\negmedspace$\calligra #1}}}}
+
+% \renewcommand{\chaptermark}[1]{\markright{\thechapter\ #1}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+\fancyhf{} % supprime les en-têtes et pieds prédéfinis
+\fancyhead[R]{\thepage}% Left Even, Right Odd
+\fancyhead[L]{\textsl{\leftmark}} % Left Odd
+%\fancyhead[RE]{\textsl{\leftmark}} % Right Even
+\renewcommand{\headrulewidth}{0pt}% filet en haut de page
+\renewcommand{\footrulewidth}{0pt} % pas de filet en bas
+\fancypagestyle{plain}{ % pages de tetes de chapitre
+\fancyhead{} % supprime l'entete
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt} % et le filet
+}
+
+\begin{document}
+%newpage
+%\thispagestyle{empty}
+%\null
+%\newpage
+\pagenumbering{roman}
+\input{page_garde}
+
+% \section*{Remerciements}
+% \renewcommand{\leftmark}{REMERCIEMENTS}
+% %\addcontentsline{toc}{chapter}{Remerciements}
+
+% Je remercie ...\\
+
+\newpage
+\renewcommand{\leftmark}{TABLE DES MATI\`{E}RES}
+\thispagestyle{fancy}
+\tableofcontents
+
+\newpage
+\pagenumbering{arabic}
+\input{intro}
+\input{prob}
+\input{analyse}
+\input{sol}
+% \input{outils}
+\input{ccl}
+
+%Le style bibliographique utilisé
+% \bibliographystyle{latex8}
+% \bibliographystyle{alpha}
+% \bibliographystyle{alpha}
+
+%Le fichier .bib uitilisé
+% \bibliography{biblio}
+
+\printbibliography
+
+\newpage
+\appendix
+\addcontentsline{toc}{chapter}{Annexes}
+\input{annexes}
+
+\end{document}

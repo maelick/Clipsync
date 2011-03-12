@@ -1,0 +1,131 @@
+Sujet:
+
+Copier/coller multiplateforme
+
+L'idée est de proposer, à un utilisateur ayant plusieurs ordinateurs allumés
+autour de lui, une fonctionnalité de copier/coller entre ces différents
+ordinateurs. Il s'agirait, dans un premier temps de la fonction copier/coller
+classique de texte; ceci pourrait être étendu à données plus complexes.
+
+L'idée n'est pas de réinventer la roue (les bureaux distants ou virtuels)
+mais de créer un service avec clients très légers (à installer sur chaque
+ordinateur concerné) permettant très facilement de réaliser le copier/coller
+sans avoir à passer par des échanges de mails, de fichiers, ...
+
+Il y a bien entendu des aspects "communications réseaux", ainsi que
+"sécurité (identification/authentification)" à prendre en considération.
+
+Les plateforme ciblées sont du monde unix (macos/linux) mais le produit
+devrait être adaptable par exemple à windows (option).
+
+L'étude de faisabilité n'a pas été réalisée, l'existant n'a été parcouru que
+superficiellement.
+
+Mots clefs : rdesktop,RDPv5, RDP, Citrix XenApp, mstc, VNC, Technologie NX
+
+
+
+Architecture réseau:
+- Client/server: Un serveur tourne sur une machine, les clients envoeint ce
+  qui est copié au serveur, les clients reçoivent ce qui est collé du serveur
+
+Fonctionnalités:
+- Copier/coller simple propre à l'OS de la machine client
+- Historique du clipboard + sauvegarde de données avec accès par "label"
+- "Kill ring" -> LIFO stack (cf. emacs)
+- Clipboard doit pouvoir convertir des données (par exemple html -> texte brut)
+  -> Définition de types de données
+
+Protocole de communication réseau:
+- Authentification:
+  * Client envoie "USR username;"
+  * Serveur envoie: "PASSWD;" ou "UNKNWON USR;" + wait 3s
+  * Client envoie: "PASSWD passwd;"
+  * Serveur envoie: "OK;" ou "WRONG PASSWORD";
+- Envoie de données
+- Réceptions de données
+- Bouger dans le kill ring + modifier kill ring
+- Utilisation d'un label
+- Spécification du type de données à envoyer
+
+Développement et implémentation:
+- Python ou C?
+- Programmation réseau asynchrone et SSL
+- Libs:
+  * Python: Twisted, Xlib
+  * C: OpenSSL, SDL_net, libcurl (transfert de fichiers), GNet, Xlib
+- Bazaar + Launchpad
+
+Sécurité:
+- Connexion sécurisée par SSL
+- Système d'identification -> Style Unix avec permissions,
+                              groupes d'utilisateurs
+
+Client:
+- Se connecte une fois et tourne en background en gardant une session active
+  -> Daemon 1 qui garde connexion avec serveur et reçoit des commandes des
+     autres clients
+  -> Client lancé au démarrage de X (ou de Windows/MacOSX) qui transfère
+     entre daemon et clipboard
+  -> Client en ligne de ccommande qui envoie au daemon,
+     permet d'utiliser killring et multiple clipboard (accès via des labels).
+     (-> Système de fichier façon Unix) (envoie de ce qu'il faut copier/coller
+     à partir d'un fichier ou de l'entrée/sortie standard)
+
+Serveur:
+- Garde connexion active avec Daemon client
+- Garde en mémoire un kill ring façon Emacs et système de fichier?
+
+Sources à aller voir:
+- Chercher livre sur le sujet à la biblio
+- Standard Freedesktop pour X -> 2 clipboards:
+           PRIMARY avec souris et CLIPBOARD indépendant
+- Inter-Client Communication Convention Manual (ICCCM): spécification
+  pour X dont copier/coller et clipboard et Extended Window Manager Hints
+  (EWMH), standard X créé au dessus de ICCCM
+- http://www.clipboardextender.com/?page_id=7
+- http://freedesktop.org/wiki/Specifications/clipboards-spec?action=show
+- ClipboardMultiShare: http://sourceforge.net/projects/clipboardmshare/
+  Clipboard Share: http://clipboardshare.codeplex.com/
+- Xclip: utilitaire en ligne de commande pour avoir accès au clipboard
+- parcellite: programme GTK+ pour avoir accès au clipboard
+- SSL: http://fr.wikipedia.org/wiki/Secure_Sockets_Layer
+- VNC: http://fr.wikipedia.org/wiki/Virtual_Network_Computing
+- NX et FreeNX, client/serveur de session distante X:
+  http://fr.wikipedia.org/wiki/Technologie_NX
+- mstc? pas trouvé sur google
+- Truc proprio de bureau distant: http://fr.wikipedia.org/wiki/Citrix_XenApp
+- RDP, rdesktop, MS Terminal Services:
+  http://fr.wikipedia.org/wiki/Remote_Desktop_Protocol
+  http://fr.wikipedia.org/wiki/Terminal_Services
+  http://fr.wikipedia.org/wiki/Rdesktop
+- Sockets asynchrones en C:
+  http://broux.developpez.com/articles/c/sockets/
+- OpenSSL:
+  http://www.ibm.com/developerworks/linux/library/l-openssl.html
+- Selene, asynchronous OpenSSL:
+  http://thechangelog.com/post/1007194584/selene-asynchronous-ssl-tls
+- X clipboard avec Xlib
+- Paquet java: awt.datatransfer (alors utiliser SSL en java: javax.net.ssl) + Remote Method Invocation (RMI)
+- http://sourceforge.net/projects/netclipboard/ encore un à voir
+
+Framework P2P:
+- possibilité d'activer l'historique
+- si pas d'historique:
+  - chaque pair garde ce qu'il copie (en un seul exemplaire)
+  - un pair possède la main (à la manière de X), quand il prend la main il notifie les autres
+  - quand il a la main et qu'il copie quelque chose de nouveau, pas de notification aux autres
+  - seules communications: request d'un paste ou changement de main
+- si hostiruqe:
+  - idem mais chaque pair garde l'historique de ce qu'il a copié avec timestamp
+  - retient qui avait la main quand il l'a prise et qui l'a prise quand il l'a perdue
+  - quand demande dans l'historique: broadcast de request du timestamp le plus proche d'un timestamp donné
+  - réception du timestamp de chacun + nombre de données enregistrées
+  - peut demander au pair choisi pour recevoir la ième donnée associée au timestamp
+- join/leave:
+  - connait une ip: demande à l'ip la liste des pairs qui ont joints
+  - informe toutes les ip qui ont joint
+  - pairs en full mesh -> ping pong régulier
+  - si une ip ne répond pas -> informe tout le monde que l'ip est morte
+  --> supprimer full mesh et faire du routage?
+- Historique: se vide après un certain (paramétrable) + possibilité de vider manuellement

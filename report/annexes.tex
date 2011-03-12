@@ -1,0 +1,65 @@
+\chapter{Codes sources utilisés}\label{ann:src}
+\renewcommand{\leftmark}{ANNEXE \thechapter.~~Codes sources utilisés}
+\label{annexe1}
+
+Afin de comprendre comment fonctionnent certains logiciels étudiés dans
+l'étude de faisabilité, certains codes sources disponibles en ligne
+ont été utilisés. Ceux-ci étant disponibles sous licences libres (GPL et MIT),
+ils sont non seulement disponibles en ligne mais peuvent aussi être
+réutilisés librement.
+
+Bien que ces codes ne seront pas réutilisés pour des raisons évidentes
+(utilisation d'un environnement de développement différent), certains
+principes ont été compris grâce à ceux-ci. De même les principes de base
+utilisé dans le projet s'inspirent largement de ces logiciels, c'est pour
+cette raison qu'une annexe leur est consacrée.
+
+\section*{ClipboardMultiSharer}
+Le code source Java de l'application sous licence GPL
+\footnote{\url{http://sourceforge.net/projects/clipboardmshare/develop}}
+a été parcouru afin de comprendre comment fonctionnait
+le logiciel, entre autre afin de voir comment il était possible d'accéder
+au presse-papier en Java.
+La révision consultée était la 16 datant du 10 juillet 2010.
+
+\section*{Clipboard Share}
+Bien que disponible sous licence MIT
+\footnote{\url{http://clipboardshare.codeplex.com/SourceControl/list/changesets}}, n'ayant pas de connaissances en C\# et en MS .NET, le code de ce logiciel
+n'a été ni utilisé dans un but précis, ni lu.
+
+\section*{The Network Clipboard}
+Le code source sous licence GPL
+\footnote{\url{http://sourceforge.net/projects/netclipboard/develop}}
+a été consulté dans le but d'examiner le protocole utilisé. La révision
+consultée était la 88.
+
+\section*{Remote Clip}
+Le code source sous licence GPL est disponible avec la dernière version
+du logiciel
+\footnote{\url{http://www.cs.cmu.edu/~rcm/RemoteClip/RemoteClip-3.1.zip}}.
+Celui-ci a été consulté dans le but d'étudier le protocole réseau utilisé.
+
+\chapter{Principe KISS}\label{ann:kiss}
+\renewcommand{\leftmark}{ANNEXE \thechapter.~~Principe KISS}
+\label{annexe2}
+Le principe \emph{KISS} (Keep It Simple, Stupid!) \cite{wiki:kiss} est un
+principe prônant la simplicité, tout particulièrement dans le monde du design.
+Il est utilisé dans le développement logiciel dans le but d'exprimer le fait
+que la conception doit être simple et éviter toute complexité inutile.
+
+Celui-ci est à la base même de la philosophie Unix, en effet celle-ci prône
+l'utilisation de petits utilitaires simples ayant chacun une fonctionnalité
+bien précise. Le projet sera donc développé de manière à fournir
+une implémentation suivant cette philosophie. Plusieurs auteurs
+\cite{Brooks1995, Raymond2001} prônent cette philosophie sans pour autant
+y faire référence explicitement. \emph{e.g.} Brooks explique par exemple
+que le design est d'une importance capitale car il permet de comprendre
+plus facilement le code source, Raymond dit qu'il faut concevoir les logiciels
+de manière ce qu'ils suivent la philosophie d'Unix. Il dit aussi que
+la perfection en conception n'est pas atteinte lorsque l'on n'a plus rien à
+ajouter mais plutôt lorsque l'on n'a plus rien à retirer.
+
+Filip Hanik, un ingénieur logiciel membre de l'\emph{Apache Foundation} parle
+aussi du principe KISS et donne des conseils pour appliquer ces principes en
+Java (mais ceux-ci sont applicables dans tous les langages de programmation)
+\cite{fhanikKISS}.

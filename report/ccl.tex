@@ -1,0 +1,41 @@
+\chapter*{Conclusion}
+\addcontentsline{toc}{chapter}{Conclusion}
+\renewcommand{\leftmark}{CONCLUSION}
+Finalement, après avoir examiné le problème, les solutions existantes
+pour le résoudre se sont avérées pour la plupart inefficaces. Certaines
+ont pourtant de bonnes idées qui ont été reprises afin d'imaginer une
+architecture et une ébauche de protocole permettant à des pairs de synchroniser
+leur presse-papier sur un réseau. Grâce à cela, il est désormais possible
+d'implémenter ce programme afin de fournir une solution efficace.
+
+Pour cela le langage C++ sera utilisé, celui-ci permettant d'avoir un programme
+compilé optimisé pour un système précis, il permet de mieux satisfaire
+la contrainte de solutions légères qu'avec un langage interprété par une
+machine virtuelle. De même le C++ offre l'avantage de donner l'accès
+directement à la Xlib et de communiquer facilement avec le serveur
+X Window.
+
+La librairie Qt, célèbre pour être utilisée dans l'environnement de bureau
+KDE, sera aussi utilisée. Celle-ci permet cependant de faire bien plus que des
+programmes fenêtrés. Elle contient entre autre un ensemble de classes
+permettant d'établir des connexions TCP/TLS de manière indépendante du
+système d'exploitation. Par manque d'expérience avec cette librairie,
+il n'est cependant pas possible de dire ce qu'elle pourrait apporter en plus,
+celle-ci contenant un grand nombre d'outils différents.
+
+Enfin les prochains mois seront consacrés, tout d'abord à l'étude de
+la librairie Qt (et en particulier de sa partie concernant les sockets).
+Ensuite une fois ceci fait, il sera possible d'implémenter l'ensemble
+des logiciels à fournir de manière incrémentale. Le client P2P sera
+d'abord développé afin d'offrir un protocole de base fonctionnel.
+Une fois celui-ci implémenté et testé, il sera alors possible
+de passer à l'implémentation de trois types de clients locaux.
+
+Un premier permettant une utilisation simple sur l'entrée
+et la sortie standard d'un terminal Unix. Le second devra synchroniser le
+presse-papier de X Window. Le dernier fournira une interface graphique
+basique pour les systèmes ne supportant pas X, il permettra de copier/coller
+du texte dans un champ texte et de le synchroniser sur le réseau.
+Cependant si une solution est trouvée afin de fournir un client
+permettant de synchroniser le presse-papier indépendemment du système
+d'exploitation, les deux clients n'en formeront qu'un seul.
