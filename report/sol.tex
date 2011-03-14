@@ -150,27 +150,41 @@ réseau.
 \subsubsection*{Rejoindre le réseau}
 Outre un moyen d'authentification, il est nécessaire de définir comment
 un pair peut rejoindre le réseau afin de partager son presse-papier.
-Pour cela il doit connaître l'adresse IP et l'identifiant d'au moins un pair.
-Une fois authentifié, le \emph{parent} contacté lui envoie la liste
-des autres pairs faisant partie du réseau en précisant lequel d'entre eux
-détient le presse-papier. Une fois cette liste reçue, le \emph{fils}
-informe l'ensemble des autres pairs de son arrivée sur le réseau tout en
-s'authentifiant auprès de ces pairs. Une fois ceci fait, le pair est considéré
-comme faisant partie du réseau et garde chaque connexion ouverte.
-Ceci crée une topologie où chaque pair possède une connexion ouverte
-avec tous les autres noeuds, ce qui signifie que pour un réseau de $n$
-pairs, chaque pair doit maintenir $n-1$ connexions TCP sécurisées. Ceci
-pourrait devenir une charge importante à supporter dans un grand réseau, mais
-dans notre cas celui-ci est restreint à quelques pairs.
+Une première solution consiste en la connaissance, pour un pair voulant
+rejoindre le réseau, de connaître l'IP et l'identifiant d'au moins un autre
+pair déjà présent dans le réseau et connaissant les autres pairs présents
+dans ce réseau. Il suffit alors de contacter cet autre pair et de synchroniser
+la  liste des pairs de l'ensemble du réseau. Une autre solution envisageable
+est d'utiliser un mécanisme de broadcast permettant de flooder le réseau pour
+rechercher les pairs désirant rejoindre le réseau. Cette solution sera celle
+utilisée, celle-ci permettant de minimiser le nombres de paramètres que devra
+configurer l'utilisateur.
+
+Pour cela, il faut que chaque pair envoie à interval régulier un message
+en broadcast, sur le réseau local, permettant d'identifier le groupe de pairs
+auquel il appartient ou veut appartenir. Tout pair appartenant au groupe et
+recevant le message doit alors contacter le pair ayant envoyé le message en
+ouvrant une connexion TCP sécurisée. Il faut cependant faire attention à un
+problème: le nombre de connexions TCP ouvertes peut devenir une charge
+importante pour le réseau. En effet pour un groupe de $n$ pair, $n-1$
+connexions sera ouverte pour chaque pair. Le nombre de connexions serait donc
+en $(O(n^2)$. Cependant le réseau P2P étant limité à quelques pairs dans le
+cas du CCMP, ceci n'est pas handicapant.
 
 \subsubsection*{Quitter le réseau}
 Lorsqu'un pair quitte le réseau, il doit notifier l'ensemble des autres
 pairs de son départ. Une fois ceci fait, il peut fermer chaque connexion
 ouverte avec chacun des pairs. En revanche il se peut qu'un pair quitte
 le réseau sans pouvoir notifier les pairs de son départ, \emph{e.g.}
-à cause d'une déconnexion du lien physique. Pour cette raison, lorsqu'un
-pair n'est plus joignable, celui-ci est considéré comme sorti du réseau
-et la connexion avec celui-ci peut être coupée.
+à cause d'une déconnexion du lien physique. Pour cela un mécanisme
+de \emph{keep alive} doit être utilisé. Il faut que chaque pair envoie
+de manière régulière un message sur chaque connexion ouverte, même en cas
+d'inactivité de la part de l'utilisateur. Lorsqu'un pair n'envoie plus
+de messages keep alive pendant un certain laps de temps, il faut que les
+autres pairs ferment la connexion TCP avec ce pair et le considèrent comme
+ayant quitté le réseau. Si la connexion physique est rétablie, le pair
+\emph{disparu} peut alors rejoindre à nouveau le réseau grâce au mécanisme
+de broadcast.
 
 \subsection{Client local}
 Le client P2P est le \emph{front-end} avec le réseau, il est chargé
