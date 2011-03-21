@@ -6,8 +6,8 @@ using Poco::TimerCallback;
 
 Broadcaster::Broadcaster(Config &conf):
     conf(conf),
-    bcastAddr(conf.getString("p2p_client.bcast_addr")),
-    srcAddr(conf.getString("p2p_client.addr")),
+    bcastAddr(conf.getBroadcastAddress()),
+    srcAddr(conf.getAddress()),
     s1(this->bcastAddr, true), s2(this->srcAddr, true),
     t(1, conf.getInt("p2p_client.bcast_delay")),
     verbose(conf.getBool("p2p_client.verbose"))

@@ -2,8 +2,10 @@
 
 using namespace std;
 
-const string DEFAULT_ADDR = "localhost:2525";
-const string DEFAULT_BCAST_ADDR = "localhost:4242";
+const string DEFAULT_INTERFACE = "eth0";
+const bool DEFAULT_USE_IPv6 = false;
+const short DEFAULT_PORT = 2525;
+const short DEFAULT_BCAST_PORT = 4242;
 const int DEFAULT_BCAST_DELAY = 5000;
 const string DEFAULT_PEER_NAME = "unknown";
 const string DEFAULT_GROUP = "clipboard";
@@ -31,13 +33,38 @@ bool Config::getBool(string property)
     return this->conf->getBool(property);
 }
 
+NetworkInterface Config::getInterface()
+{
+    return NetworkInterface::forName(this->getString("p2p_client.interface"));
+}
+
+SocketAddress Config::getAddress()
+{
+    return SocketAddress(this->getInterface().address(),
+                         this->getInt("p2p_client.port"));
+}
+
+SocketAddress Config::getBroadcastAddress()
+{
+    return SocketAddress(this->getInterface().broadcastAddress(),
+                         this->getInt("p2p_client.bcast_port"));
+}
+
 void Config::initConfigFile(string &confFile) {
+    if(!this->conf->hasProperty("p2p_client.interfacce")) {
+        this->conf->setString("p2p_client.interface", DEFAULT_INTERFACE);
+    }
+
+    if(!this->conf->hasProperty("p2p_client.use_ipv6")) {
+        this->conf->setBool("p2p_client.use_ipv6", DEFAULT_USE_IPv6);
+    }
+
     if(!this->conf->hasProperty("p2p_client.addr")) {
-        this->conf->setString("p2p_client.addr", DEFAULT_ADDR);
+        this->conf->setInt("p2p_client.addr", DEFAULT_PORT);
     }
 
     if(!this->conf->hasProperty("p2p_client.bcast_addr")) {
-        this->conf->setString("p2p_client.bcast_addr", DEFAULT_BCAST_ADDR);
+        this->conf->setInt("p2p_client.bcast_addr", DEFAULT_BCAST_PORT);
     }
 
     if(!this->conf->hasProperty("p2p_client.bcast_delay")) {
