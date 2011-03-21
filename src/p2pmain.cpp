@@ -1,15 +1,27 @@
 #include <iostream>
+#include <Poco/Exception.h>
 #include "p2p.h"
 
 using namespace std;
 
-void start(string conf)
+int start(string conf)
 {
-    P2PClient p2p(conf);
+    P2PClient *p2p;
+
+    try {
+        p2p = new P2PClient(conf);
+    } catch(Poco::FileNotFoundException) {
+        cerr << "Configuration file " << conf << " doesn't exist." << endl;
+        return 1;
+    }
     Poco::ThreadPool pool;
 
-    p2p.start(pool);
+    p2p->start(pool);
     pool.joinAll();
+
+    delete p2p;
+
+    return 0;
 }
 
 int main(int argc, char **argv) {
@@ -17,8 +29,6 @@ int main(int argc, char **argv) {
         cerr << "Please enter a configuration file name." << endl;;
         return 1;
     } else {
-        start(argv[1]);
-
-        return 0;
+        return start(argv[1]);
     }
 }
