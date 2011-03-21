@@ -51,6 +51,8 @@ void Broadcaster::onTimer(Poco::Timer &timer)
              << this->srcAddr.toString() << endl;
     }
 
-    std::string msg = "JOIN " + this->conf.getString("p2p_client.group");
+    std::string msg =
+        "JOIN " + this->conf.getString("p2p_client.peer_name") +
+        " " + this->conf.getString("p2p_client.group");
     this->s2.sendTo(msg.data(), msg.size(), bcastAddr);
 }
