@@ -1,0 +1,12 @@
+<config>
+  <p2p_client>
+    <addr>192.168.2.8:1111</addr>
+    <bcast_addr>192.168.2.255:4242</bcast_addr>
+    <bcast_delay>5000</bcast_delay>
+    <peer_name>maelick2</peer_name>
+    <group>maelick</group>
+    <key>coucou_maelick</key>
+    <salt>asdff8723lasdf(**923412</salt>
+    <verbose>true</verbose>
+  </p2p_client>
+</config>
