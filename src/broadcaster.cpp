@@ -9,17 +9,19 @@ Broadcaster::Broadcaster(Config &conf):
     bcastAddr(conf.getBroadcastAddress()),
     srcAddr(conf.getAddress()),
     s1(this->bcastAddr, true), s2(this->srcAddr, true),
+    pool(),
     t(1, conf.getInt("p2p_client.bcast_delay")),
     verbose(conf.getBool("p2p_client.verbose"))
 {
     this->s2.setBroadcast(true);
 }
 
-void Broadcaster::start(Poco::ThreadPool &pool)
+void Broadcaster::start()
 {
-    pool.start(*this);
+    this->pool.start(*this);
     this->t.start(TimerCallback<Broadcaster>(*this, &Broadcaster::onTimer),
                   pool);
+    this->pool.joinAll();
 }
 
 void Broadcaster::run()

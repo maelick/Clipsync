@@ -15,7 +15,7 @@ class Broadcaster: public Poco::Runnable
 {
 public:
     Broadcaster(Config &conf);
-    void start(Poco::ThreadPool &pool);
+    void start();
     void onTimer(Poco::Timer &timer);
     void run();
 
@@ -24,6 +24,7 @@ private:
     SocketAddress bcastAddr, srcAddr;
     DatagramSocket s1;
     DatagramSocket s2;
+    Poco::ThreadPool pool;
     Poco::Timer t;
     bool verbose;
 };

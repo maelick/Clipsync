@@ -18,7 +18,7 @@ Config& P2PClient::getConfig()
     return this->conf;
 }
 
-void P2PClient::start(Poco::ThreadPool &pool)
+void P2PClient::start()
 {
-    this->b->start(pool);
+    this->b->start();
 }

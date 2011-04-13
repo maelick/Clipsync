@@ -11,7 +11,7 @@ public:
     P2PClient(std::string &confFile);
     ~P2PClient();
     Config& getConfig();
-    void start(Poco::ThreadPool &pool);
+    void start();
 
 private:
     Config conf;

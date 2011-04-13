@@ -18,10 +18,8 @@ int start(string conf)
         cerr << "Unable to find interface " << e.message() << "." << endl;
         return 1;
     }
-    Poco::ThreadPool pool;
 
-    p2p->start(pool);
-    pool.joinAll();
+    p2p->start();
 
     delete p2p;
 
