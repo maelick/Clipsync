@@ -35,7 +35,8 @@ bool Config::getBool(string property)
 
 NetworkInterface Config::getInterface()
 {
-    return NetworkInterface::forName(this->getString("p2p_client.interface"));
+    return NetworkInterface::forName(this->getString("p2p_client.interface"),
+                                     this->getBool("p2p_client.use_ipv6"));
 }
 
 SocketAddress Config::getAddress()

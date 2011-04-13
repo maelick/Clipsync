@@ -33,7 +33,7 @@ p2pmain.exe: broadcaster.o p2p.o config.o p2p_handler.o
 .PHONY: clean mrproper
 
 clean:
-	@rm *.o
+	@rm *.o *~
 
 mrproper: clean
 	@rm $(EXEC)
