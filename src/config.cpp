@@ -52,7 +52,7 @@ SocketAddress Config::getBroadcastAddress()
 }
 
 void Config::initConfigFile(string &confFile) {
-    if(!this->conf->hasProperty("p2p_client.interfacce")) {
+    if(!this->conf->hasProperty("p2p_client.interface")) {
         this->conf->setString("p2p_client.interface", DEFAULT_INTERFACE);
     }
 
@@ -60,12 +60,12 @@ void Config::initConfigFile(string &confFile) {
         this->conf->setBool("p2p_client.use_ipv6", DEFAULT_USE_IPv6);
     }
 
-    if(!this->conf->hasProperty("p2p_client.addr")) {
-        this->conf->setInt("p2p_client.addr", DEFAULT_PORT);
+    if(!this->conf->hasProperty("p2p_client.port")) {
+        this->conf->setInt("p2p_client.port", DEFAULT_PORT);
     }
 
-    if(!this->conf->hasProperty("p2p_client.bcast_addr")) {
-        this->conf->setInt("p2p_client.bcast_addr", DEFAULT_BCAST_PORT);
+    if(!this->conf->hasProperty("p2p_client.bcast_port")) {
+        this->conf->setInt("p2p_client.bcast_port", DEFAULT_BCAST_PORT);
     }
 
     if(!this->conf->hasProperty("p2p_client.bcast_delay")) {
