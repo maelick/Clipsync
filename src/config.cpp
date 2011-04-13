@@ -13,9 +13,11 @@ const string DEFAULT_KEY = "passphrase";
 const string DEFAULT_SALT = "mysalt";
 
 Config::Config(string &confFile):
-    conf(new XMLConfiguration(confFile))
+    conf(new XMLConfiguration(confFile)),
+    gen()
 {
     this->initConfigFile(confFile);
+    this->gen.seed();
 }
 
 string Config::getString(string property)
@@ -93,4 +95,9 @@ void Config::initConfigFile(string &confFile) {
     }
 
     this->conf->save(confFile);
+}
+
+int Config::getChallenge()
+{
+    return this->gen.next();
 }
