@@ -1,5 +1,6 @@
 #include <iostream>
 #include <Poco/Exception.h>
+#include <Poco/Net/NetException.h>
 #include "p2p.h"
 
 using namespace std;
@@ -10,8 +11,11 @@ int start(string conf)
 
     try {
         p2p = new P2PClient(conf);
-    } catch(Poco::FileNotFoundException) {
+    } catch(Poco::FileNotFoundException e) {
         cerr << "Configuration file " << conf << " doesn't exist." << endl;
+        return 1;
+    } catch(Poco::Net::InterfaceNotFoundException e) {
+        cerr << "Unable to find interface " << e.message() << "." << endl;
         return 1;
     }
     Poco::ThreadPool pool;
