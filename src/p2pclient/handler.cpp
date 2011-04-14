@@ -153,10 +153,17 @@ void PeerHandler::close()
     this->t2.stop();
 }
 
-PeerManager::PeerManager(Config &conf, Poco::ThreadPool &pool):
-    TCPServer(new PeerFactory(conf, pool),
-              conf.getAddress()),
+PeerManager::PeerManager(Config &conf):
     conf(conf),
-    pool(pool)
+    pool(),
+    TCPServer(new PeerFactory(conf, this->pool),
+              conf.getAddress())
 {
+}
+
+void PeerManager::contact(SocketAddress addr)
+{
+    StreamSocket socket(addr);
+    PeerHandler handler(socket, this->conf, this->pool);
+    this->pool.start(handler);
 }

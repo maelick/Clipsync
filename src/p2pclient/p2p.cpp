@@ -3,14 +3,10 @@
 using namespace std;
 
 P2PClient::P2PClient(string &confFile):
-    conf(confFile)
+    conf(confFile),
+    manager(this->conf),
+    b(this->conf)
 {
-    this->b = new Broadcaster(this->conf);
-}
-
-P2PClient::~P2PClient()
-{
-    delete this->b;
 }
 
 Config& P2PClient::getConfig()
@@ -20,5 +16,6 @@ Config& P2PClient::getConfig()
 
 void P2PClient::start()
 {
-    this->b->start();
+    this->manager.start();
+    this->b.start();
 }

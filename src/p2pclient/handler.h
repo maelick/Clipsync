@@ -55,10 +55,11 @@ private:
 class PeerManager: public TCPServer
 {
 public:
-    PeerManager(Config &conf, Poco::ThreadPool &pool);
+    PeerManager(Config &conf);
+    void contact(SocketAddress addr);
 private:
     Config &conf;
-    Poco::ThreadPool &pool;
+    Poco::ThreadPool pool;
 };
 
 #endif
