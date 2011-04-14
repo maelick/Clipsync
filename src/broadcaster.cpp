@@ -10,7 +10,7 @@ Broadcaster::Broadcaster(Config &conf):
     srcAddr(conf.getAddress()),
     s1(this->bcastAddr, true), s2(this->srcAddr, true),
     pool(),
-    t(1, conf.getInt("p2p_client.bcast_delay")),
+    t(1, conf.getInt("p2p_client.bcast_interval")),
     verbose(conf.getBool("p2p_client.verbose"))
 {
     this->s2.setBroadcast(true);

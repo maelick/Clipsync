@@ -4,23 +4,29 @@
 #include <vector>
 #include <sstream>
 
+using Poco::TimerCallback;
 using Poco::RegularExpression;
 using namespace Poco::Net;
 using namespace std;
 
-PeerFactory::PeerFactory(Config &conf):
-    conf(conf)
+PeerFactory::PeerFactory(Config &conf, Poco::ThreadPool &pool):
+    conf(conf),
+    pool(pool)
 {
 }
 
 TCPServerConnection* PeerFactory::createConnection(const StreamSocket &socket)
 {
-    return new PeerHandler(socket, this->conf);
+    return new PeerHandler(socket, this->conf, this->pool);
 }
 
-PeerHandler::PeerHandler(const StreamSocket &socket, Config &conf):
+PeerHandler::PeerHandler(const StreamSocket &socket, Config &conf,
+                         Poco::ThreadPool &pool):
     TCPServerConnection(socket),
     conf(conf),
+    pool(pool),
+    t1(conf.getInt("p2p_client.keepalive_delay")),
+    t2(conf.getInt("p2p_client.keepalive_interval")),
     challenge(conf.getChallenge()),
     isRunning(false),
     ready(false)
@@ -77,7 +83,7 @@ void PeerHandler::treatMsg(string msg)
 
 void PeerHandler::treatOk()
 {
-    // reset timer
+    this->t1.restart();
 }
 
 void PeerHandler::treatKo(int error)
@@ -94,16 +100,30 @@ void PeerHandler::sendJoin()
     ostringstream oss;
     oss << "JOIN " << this->challenge << endl;
     this->sendMsg(oss.str());
-    //démarrer le timer
+    this->t1.start(TimerCallback<PeerHandler>(*this, &PeerHandler::onTimer1),
+                  this->pool);
+}
+
+void PeerHandler::onTimer1(Poco::Timer &timer)
+{
+    this->sendClose();
 }
 
 void PeerHandler::verifyAccept(int nbr)
 {
     if(nbr == this->challenge + 1) {
         this->ready = true;
+        this->t2.start(TimerCallback<PeerHandler>(*this,
+                                                  &PeerHandler::onTimer2),
+                       this->pool);
     } else {
         this->sendClose();
     }
+}
+
+void PeerHandler::onTimer2(Poco::Timer &timer)
+{
+    this->sendMsg("OK\n");
 }
 
 void PeerHandler::treatJoin(string peerName, int nbr)
@@ -113,20 +133,30 @@ void PeerHandler::treatJoin(string peerName, int nbr)
     this->sendMsg(oss.str());
 }
 
+void PeerHandler::sendKo(int error)
+{
+    ostringstream oss;
+    oss << "KO " << error << endl;
+    this->sendMsg(oss.str());
+}
+
 void PeerHandler::sendClose()
 {
-    this->sendMsg("KO 0\n");
+    this->sendKo(0);
     this->close();
 }
 
 void PeerHandler::close()
 {
     this->isRunning = false;
+    this->t1.stop();
+    this->t2.stop();
 }
 
-PeerManager::PeerManager(Config &conf):
-    TCPServer(new PeerFactory(conf),
+PeerManager::PeerManager(Config &conf, Poco::ThreadPool &pool):
+    TCPServer(new PeerFactory(conf, pool),
               conf.getAddress()),
-    conf(conf)
+    conf(conf),
+    pool(pool)
 {
 }

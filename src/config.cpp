@@ -6,11 +6,13 @@ const string DEFAULT_INTERFACE = "eth0";
 const bool DEFAULT_USE_IPv6 = false;
 const short DEFAULT_PORT = 2525;
 const short DEFAULT_BCAST_PORT = 4242;
-const int DEFAULT_BCAST_DELAY = 5000;
+const int DEFAULT_BCAST_INTERVAL = 5000;
 const string DEFAULT_PEER_NAME = "unknown";
 const string DEFAULT_GROUP = "clipboard";
 const string DEFAULT_KEY = "passphrase";
 const string DEFAULT_SALT = "mysalt";
+const int DEFAULT_KEEPALIVE_DELAY = 1000;
+const int DEFAULT_KEEPALIVE_INTERVAL = 200;
 
 Config::Config(string &confFile):
     conf(new XMLConfiguration(confFile)),
@@ -70,8 +72,9 @@ void Config::initConfigFile(string &confFile) {
         this->conf->setInt("p2p_client.bcast_port", DEFAULT_BCAST_PORT);
     }
 
-    if(!this->conf->hasProperty("p2p_client.bcast_delay")) {
-        this->conf->setInt("p2p_client.bcast_delay", DEFAULT_BCAST_DELAY);
+    if(!this->conf->hasProperty("p2p_client.bcast_interval")) {
+        this->conf->setInt("p2p_client.bcast_interval",
+                           DEFAULT_BCAST_INTERVAL);
     }
 
     if(!this->conf->hasProperty("p2p_client.peer_name")) {
@@ -88,6 +91,16 @@ void Config::initConfigFile(string &confFile) {
 
     if(!this->conf->hasProperty("p2p_client.salt")) {
         this->conf->setString("p2p_client.salt", DEFAULT_SALT);
+    }
+
+    if(!this->conf->hasProperty("p2p_client.keepalive_delay")) {
+        this->conf->setInt("p2p_client.keepalive_delay",
+                           DEFAULT_KEEPALIVE_DELAY);
+    }
+
+    if(!this->conf->hasProperty("p2p_client.keepalive_interval")) {
+        this->conf->setInt("p2p_client.keepalive_interval",
+                           DEFAULT_KEEPALIVE_INTERVAL);
     }
 
     if(!this->conf->hasProperty("p2p_client.verbose")) {

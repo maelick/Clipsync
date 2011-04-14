@@ -5,6 +5,8 @@
 #include <Poco/Net/TCPServer.h>
 #include <Poco/Net/TCPServerConnection.h>
 #include <Poco/Net/TCPServerConnectionFactory.h>
+#include <Poco/ThreadPool.h>
+#include <Poco/Timer.h>
 #include "config.h"
 
 using Poco::Net::StreamSocket;
@@ -15,18 +17,22 @@ using Poco::Net::TCPServerConnectionFactory;
 class PeerFactory: public TCPServerConnectionFactory
 {
 public:
-    PeerFactory(Config &conf);
+    PeerFactory(Config &conf, Poco::ThreadPool &pool);
     TCPServerConnection* createConnection(const StreamSocket &socket);
 private:
     Config &conf;
+    Poco::ThreadPool &pool;
 };
 
 class PeerHandler: public TCPServerConnection
 {
 public:
-    PeerHandler(const StreamSocket &socket, Config &conf);
+    PeerHandler(const StreamSocket &socket, Config &conf,
+                Poco::ThreadPool &pool);
     void run();
 private:
+    void onTimer1(Poco::Timer &timer);
+    void onTimer2(Poco::Timer &timer);
     void sendMsg(std::string msg);
     void treatMsg(std::string msg);
     void treatOk();
@@ -34,9 +40,13 @@ private:
     void sendJoin();
     void verifyAccept(int nbr);
     void treatJoin(std::string peerName, int nbr);
+    void sendKo(int error);
     void sendClose();
     void close();
+
     Config &conf;
+    Poco::ThreadPool &pool;
+    Poco::Timer t1, t2;
     int challenge;
     bool isRunning;
     bool ready;
@@ -45,9 +55,10 @@ private:
 class PeerManager: public TCPServer
 {
 public:
-    PeerManager(Config &conf);
+    PeerManager(Config &conf, Poco::ThreadPool &pool);
 private:
     Config &conf;
+    Poco::ThreadPool &pool;
 };
 
 #endif
