@@ -5,7 +5,7 @@ using namespace std;
 P2PClient::P2PClient(string &confFile):
     conf(confFile),
     manager(this->conf),
-    b(this->conf)
+    b(this->conf, this->manager)
 {
 }
 

@@ -25,6 +25,7 @@ PeerHandler::PeerHandler(const StreamSocket &socket, Config &conf,
     TCPServerConnection(socket),
     conf(conf),
     pool(pool),
+    peerName(""),
     t1(conf.getInt("p2p_client.keepalive_delay")),
     t2(conf.getInt("p2p_client.keepalive_interval")),
     challenge(conf.getChallenge()),
@@ -58,11 +59,11 @@ void PeerHandler::treatMsg(string msg)
 {
     RegularExpression joinMsg("^JOIN ([a-z0-9]+) (-?[0-9]+).*",
                               RegularExpression::RE_DOTALL);
-    RegularExpression acceptMsg("^ACCEPT ([0-9]+).*",
+    RegularExpression acceptMsg("^ACCEPT (-?[0-9]+).*",
                                 RegularExpression::RE_DOTALL);
     RegularExpression okMsg("^OK.*",
                             RegularExpression::RE_DOTALL);
-    RegularExpression koMsg("^KO (-?[0-9]+).*",
+    RegularExpression koMsg("^KO ([0-9]+).*",
                             RegularExpression::RE_DOTALL);
 
     vector<string> v;
@@ -126,6 +127,7 @@ void PeerHandler::onTimer2(Poco::Timer &timer)
 
 void PeerHandler::treatJoin(string peerName, int nbr)
 {
+    this->peerName = peerName;
     ostringstream oss;
     oss << "ACCEPT " << nbr + 1 << endl;
     this->sendMsg(oss.str());
@@ -156,14 +158,17 @@ void PeerHandler::close()
 PeerManager::PeerManager(Config &conf):
     conf(conf),
     pool(),
+    peers(),
     TCPServer(new PeerFactory(conf, this->pool),
               conf.getAddress())
 {
 }
 
-void PeerManager::contact(SocketAddress addr)
+void PeerManager::contact(SocketAddress &addr, string peerName)
 {
-    StreamSocket socket(addr);
-    PeerHandler handler(socket, this->conf, this->pool);
-    this->pool.start(handler);
+    if(!this->peers.count(peerName)) {
+        StreamSocket socket(addr);
+        PeerHandler handler(socket, this->conf, this->pool);
+        this->pool.start(handler);
+    }
 }

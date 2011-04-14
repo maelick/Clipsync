@@ -1,6 +1,7 @@
 #ifndef DEF_HANDLER_H
 #define DEF_HANDLER_H
 
+#include <map>
 #include <Poco/Net/StreamSocket.h>
 #include <Poco/Net/TCPServer.h>
 #include <Poco/Net/TCPServerConnection.h>
@@ -47,6 +48,7 @@ private:
     Config &conf;
     Poco::ThreadPool &pool;
     Poco::Timer t1, t2;
+    std::string peerName;
     int challenge;
     bool isRunning;
     bool ready;
@@ -56,10 +58,11 @@ class PeerManager: public TCPServer
 {
 public:
     PeerManager(Config &conf);
-    void contact(SocketAddress addr);
+    void contact(SocketAddress &addr, std::string peerName);
 private:
     Config &conf;
     Poco::ThreadPool pool;
+    std::map<std::string,PeerHandler> peers;
 };
 
 #endif

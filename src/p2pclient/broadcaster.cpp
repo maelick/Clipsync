@@ -1,11 +1,13 @@
 #include <iostream>
+#include <Poco/RegularExpression.h>
 #include "broadcaster.h"
 
 using namespace std;
 using Poco::TimerCallback;
 
-Broadcaster::Broadcaster(Config &conf):
+Broadcaster::Broadcaster(Config &conf, PeerManager &maneger):
     conf(conf),
+    manager(manager),
     bcastAddr(conf.getBroadcastAddress()),
     srcAddr(conf.getAddress()),
     s1(this->bcastAddr, true), s2(this->srcAddr, true),
@@ -38,9 +40,23 @@ void Broadcaster::run()
         buf[n] = '\0';
 
         if(src.toString() != this->srcAddr.toString()) {
+            this->treatMsg(src, string(buf));
             if(this->verbose) {
                 cout << src.toString() << ": " << buf << endl;
             }
+        }
+    }
+}
+
+void Broadcaster::treatMsg(SocketAddress &src, string msg)
+{
+    Poco::RegularExpression re("^JOIN ([a-z0-9]+) ([a-z0-9]+).*",
+                               Poco::RegularExpression::RE_DOTALL);
+    vector<string> v;
+    if(re.match(msg)) {
+        re.split(msg, v);
+        if(this->conf.getString("p2p_client.group") == v[2]) {
+            this->manager.contact(src, v[1]);
         }
     }
 }
