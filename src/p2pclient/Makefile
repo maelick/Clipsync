@@ -12,7 +12,7 @@ endif
 # Libs
 
 # Executables
-EXEC=p2pmain.exe poco_encrypt_test.exe
+EXEC=main.exe poco_encrypt_test.exe
 
 # Rules
 all: $(EXEC)
@@ -21,7 +21,7 @@ ifeq ($(DEBUG), yes)
 endif
 
 # Dependencies
-p2pmain.exe: broadcaster.o p2p.o config.o p2p_handler.o
+main.exe: broadcaster.o p2p.o config.o handler.o
 
 # Rules (cont'd)
 %.exe: %.o

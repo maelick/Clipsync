@@ -1,5 +1,5 @@
-#ifndef DEF_P2P_HANDLER_H
-#define DEF_P2P_HANDLER_H
+#ifndef DEF_HANDLER_H
+#define DEF_HANDLER_H
 
 #include <Poco/Net/StreamSocket.h>
 #include <Poco/Net/TCPServer.h>
