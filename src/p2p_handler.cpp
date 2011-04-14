@@ -113,9 +113,7 @@ void PeerHandler::verifyAccept(int nbr)
 {
     if(nbr == this->challenge + 1) {
         this->ready = true;
-        this->t2.start(TimerCallback<PeerHandler>(*this,
-                                                  &PeerHandler::onTimer2),
-                       this->pool);
+        this->t1.restart();
     } else {
         this->sendClose();
     }
@@ -131,6 +129,8 @@ void PeerHandler::treatJoin(string peerName, int nbr)
     ostringstream oss;
     oss << "ACCEPT " << nbr + 1 << endl;
     this->sendMsg(oss.str());
+    this->t2.start(TimerCallback<PeerHandler>(*this, &PeerHandler::onTimer2),
+                   this->pool);
 }
 
 void PeerHandler::sendKo(int error)
