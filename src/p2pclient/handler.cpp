@@ -23,7 +23,8 @@ TCPServerConnection* PeerFactory::createConnection(const StreamSocket &socket)
 }
 
 PeerHandler::PeerHandler(const StreamSocket &socket, Config &conf,
-                         Poco::ThreadPool &pool, PeerManager &manager):
+                         Poco::ThreadPool &pool, PeerManager &manager,
+                         bool initiator):
     TCPServerConnection(socket),
     conf(conf),
     pool(pool),
@@ -32,6 +33,7 @@ PeerHandler::PeerHandler(const StreamSocket &socket, Config &conf,
     t1(conf.getInt("p2p_client.keepalive_delay")),
     t2(conf.getInt("p2p_client.keepalive_interval")),
     challenge(conf.getChallenge()),
+    initiator(initiator),
     isRunning(false),
     acceptVerified(false),
     acceptSent(false)
@@ -48,7 +50,9 @@ void PeerHandler::run()
 
 bool PeerHandler::compare(PeerHandler *other)
 {
-    return false;
+    string distantName = this->conf.getString("p2p_client.peer_name");
+    int cmpValue = distantName.compare(this->peerName);
+    return this->initiator ? cmpValue > 0 : cmpValue < 0;
 }
 
 void PeerHandler::sendClose()
@@ -189,7 +193,7 @@ void PeerManager::contact(SocketAddress &addr, string peerName)
 {
     if(!this->peers.count(peerName)) {
         StreamSocket socket(addr);
-        PeerHandler handler(socket, this->conf, this->pool, *this);
+        PeerHandler handler(socket, this->conf, this->pool, *this, true);
         this->pool.start(handler);
     }
 }

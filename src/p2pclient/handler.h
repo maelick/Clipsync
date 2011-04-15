@@ -33,7 +33,8 @@ class PeerHandler: public TCPServerConnection
 {
 public:
     PeerHandler(const StreamSocket &socket, Config &conf,
-                Poco::ThreadPool &pool, PeerManager &manager);
+                Poco::ThreadPool &pool, PeerManager &manager,
+                bool initiator=false);
     void run();
     bool compare(PeerHandler *other);
     void sendClose();
@@ -57,6 +58,7 @@ private:
     Poco::Timer t1, t2;
     std::string peerName;
     int challenge;
+    bool initiator;
     bool isRunning;
     bool acceptVerified;
     bool acceptSent;
