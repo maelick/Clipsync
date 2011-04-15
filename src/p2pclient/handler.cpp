@@ -9,28 +9,32 @@ using Poco::RegularExpression;
 using namespace Poco::Net;
 using namespace std;
 
-PeerFactory::PeerFactory(Config &conf, Poco::ThreadPool &pool):
+PeerFactory::PeerFactory(Config &conf, Poco::ThreadPool &pool,
+                         PeerManager &manager):
     conf(conf),
-    pool(pool)
+    pool(pool),
+    manager(manager)
 {
 }
 
 TCPServerConnection* PeerFactory::createConnection(const StreamSocket &socket)
 {
-    return new PeerHandler(socket, this->conf, this->pool);
+    return new PeerHandler(socket, this->conf, this->pool, this->manager);
 }
 
 PeerHandler::PeerHandler(const StreamSocket &socket, Config &conf,
-                         Poco::ThreadPool &pool):
+                         Poco::ThreadPool &pool, PeerManager &manager):
     TCPServerConnection(socket),
     conf(conf),
     pool(pool),
+    manager(manager),
     peerName(""),
     t1(conf.getInt("p2p_client.keepalive_delay")),
     t2(conf.getInt("p2p_client.keepalive_interval")),
     challenge(conf.getChallenge()),
     isRunning(false),
-    ready(false)
+    acceptVerified(false),
+    acceptSent(false)
 {
 }
 
@@ -40,6 +44,17 @@ void PeerHandler::run()
     StreamSocket &socket = this->socket();
     char buffer[1024];
     int n = socket.receiveBytes(buffer, sizeof(buffer));
+}
+
+bool PeerHandler::compare(PeerHandler *other)
+{
+    return false;
+}
+
+void PeerHandler::sendClose()
+{
+    this->sendKo(0);
+    this->close();
 }
 
 void PeerHandler::sendMsg(string msg)
@@ -110,11 +125,19 @@ void PeerHandler::onTimer1(Poco::Timer &timer)
     this->sendClose();
 }
 
+void PeerHandler::addPeer()
+{
+    if(this->acceptSent && this->acceptVerified) {
+        this->manager.addPeer(*this, this->peerName);
+    }
+}
+
 void PeerHandler::verifyAccept(int nbr)
 {
     if(nbr == this->challenge + 1) {
-        this->ready = true;
         this->t1.restart();
+        this->acceptVerified = true;
+        this->addPeer();
     } else {
         this->sendClose();
     }
@@ -131,8 +154,10 @@ void PeerHandler::treatJoin(string peerName, int nbr)
     ostringstream oss;
     oss << "ACCEPT " << nbr + 1 << endl;
     this->sendMsg(oss.str());
+    this->acceptSent = true;
     this->t2.start(TimerCallback<PeerHandler>(*this, &PeerHandler::onTimer2),
                    this->pool);
+    this->addPeer();
 }
 
 void PeerHandler::sendKo(int error)
@@ -142,14 +167,9 @@ void PeerHandler::sendKo(int error)
     this->sendMsg(oss.str());
 }
 
-void PeerHandler::sendClose()
-{
-    this->sendKo(0);
-    this->close();
-}
-
 void PeerHandler::close()
 {
+    this->manager.removePeer(*this, this->peerName);
     this->isRunning = false;
     this->t1.stop();
     this->t2.stop();
@@ -159,7 +179,8 @@ PeerManager::PeerManager(Config &conf):
     conf(conf),
     pool(),
     peers(),
-    TCPServer(new PeerFactory(conf, this->pool),
+    lock(),
+    TCPServer(new PeerFactory(conf, this->pool, *this),
               conf.getAddress())
 {
 }
@@ -168,7 +189,35 @@ void PeerManager::contact(SocketAddress &addr, string peerName)
 {
     if(!this->peers.count(peerName)) {
         StreamSocket socket(addr);
-        PeerHandler handler(socket, this->conf, this->pool);
+        PeerHandler handler(socket, this->conf, this->pool, *this);
         this->pool.start(handler);
     }
+}
+
+void PeerManager::removePeer(PeerHandler &handler, string &peerName)
+{
+    this->lock.lock();
+    if(this->peers.count(peerName) && this->peers[peerName] == &handler) {
+        this->peers.erase(this->peers.find(peerName));
+    }
+    this->lock.unlock();
+}
+
+bool PeerManager::addPeer(PeerHandler &handler, string &peerName)
+{
+    this->lock.lock();
+    bool result = true;
+    if(this->peers.count(peerName)) {
+        if(handler.compare(this->peers[peerName])) {
+            this->peers[peerName]->sendClose();
+            this->peers[peerName] = &handler;
+        } else {
+            handler.sendClose();
+            result = false;
+        }
+    } else {
+        this->peers[peerName] = &handler;
+    }
+    this->lock.unlock();
+    return result;
 }
