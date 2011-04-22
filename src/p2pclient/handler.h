@@ -62,6 +62,7 @@ private:
     bool isRunning;
     bool acceptVerified;
     bool acceptSent;
+    bool verbose;
 };
 
 class PeerManager: public TCPServer

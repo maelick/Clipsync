@@ -2,6 +2,7 @@
 
 #include <Poco/RegularExpression.h>
 #include <vector>
+#include <iostream>
 #include <sstream>
 
 using Poco::TimerCallback;
@@ -36,7 +37,8 @@ PeerHandler::PeerHandler(const StreamSocket &socket, Config &conf,
     initiator(initiator),
     isRunning(false),
     acceptVerified(false),
-    acceptSent(false)
+    acceptSent(false),
+    verbose(conf.getBool("p2p_client.verbose"))
 {
 }
 
@@ -46,6 +48,8 @@ void PeerHandler::run()
     StreamSocket &socket = this->socket();
     char buffer[1024];
     int n = socket.receiveBytes(buffer, sizeof(buffer));
+    string s(buffer);
+    this->treatMsg(s);
 }
 
 bool PeerHandler::compare(PeerHandler *other)
@@ -173,6 +177,10 @@ void PeerHandler::sendKo(int error)
 
 void PeerHandler::close()
 {
+    if(this->verbose) {
+        cout << "Closing connection with " << this->peerName << " on address "
+             << this->socket().peerAddress().toString();
+    }
     this->manager.removePeer(*this, this->peerName);
     this->isRunning = false;
     this->t1.stop();
@@ -194,6 +202,10 @@ void PeerManager::contact(SocketAddress &addr, string peerName)
     if(!this->peers.count(peerName)) {
         StreamSocket socket(addr);
         PeerHandler handler(socket, this->conf, this->pool, *this, true);
+        if(this->conf.getBool("p2p_client.verbose")) {
+            cout << "Contacting " << peerName << " on address "
+                 << addr.toString() << endl;
+        }
         this->pool.start(handler);
     }
 }
