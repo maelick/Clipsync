@@ -15,7 +15,7 @@ using Poco::Net::DatagramSocket;
 class Broadcaster: public Poco::Runnable
 {
 public:
-    Broadcaster(Config &conf, PeerManager &manager);
+    Broadcaster(Config *conf, PeerManager *manager);
     void start();
     void onTimer(Poco::Timer &timer);
     void run();
@@ -23,8 +23,8 @@ public:
 private:
     void treatMsg(SocketAddress &src, std::string msg);
 
-    Config &conf;
-    PeerManager &manager;
+    Config *conf;
+    PeerManager *manager;
     SocketAddress bcastAddr, srcAddr;
     DatagramSocket s1;
     DatagramSocket s2;

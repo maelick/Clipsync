@@ -10,13 +10,14 @@ class P2PClient
 {
 public:
     P2PClient(std::string &confFile);
-    Config& getConfig();
+    ~P2PClient();
+    Config* getConfig();
     void start();
 
 private:
-    Config conf;
-    PeerManager manager;
-    Broadcaster b;
+    Config *conf;
+    PeerManager *manager;
+    Broadcaster *b;
 };
 
 #endif

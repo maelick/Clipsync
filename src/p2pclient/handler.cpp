@@ -10,53 +10,126 @@ using Poco::RegularExpression;
 using namespace Poco::Net;
 using namespace std;
 
-PeerFactory::PeerFactory(Config &conf, Poco::ThreadPool &pool,
-                         PeerManager &manager):
+PeerManager::PeerManager(Config *conf):
     conf(conf),
-    pool(pool),
-    manager(manager)
+    ssock(conf->getAddress()),
+    pool(),
+    verbose(conf->getBool("p2p_client.verbose"))
 {
 }
 
-TCPServerConnection* PeerFactory::createConnection(const StreamSocket &socket)
+void PeerManager::start()
 {
-    return new PeerHandler(socket, this->conf, this->pool, this->manager);
+    this->pool.start(*this);
 }
 
-PeerHandler::PeerHandler(const StreamSocket &socket, Config &conf,
-                         Poco::ThreadPool &pool, PeerManager &manager,
+void PeerManager::run()
+{
+    while(true) {
+        SocketAddress addr;
+        StreamSocket sock = this->ssock.acceptConnection(addr);
+        PeerHandler *handler =  new PeerHandler(this->conf, &this->pool,
+                                                this, sock, false);
+        this->mutex.lock();
+        this->handlers.push_back(handler);
+        this->mutex.unlock();
+        if(this->verbose) {
+            cout << "Peer connected" << endl;
+        }
+        this->pool.start(*handler);
+    }
+}
+
+void PeerManager::contact(SocketAddress &addr, string peerName)
+{
+    if(!this->peers.count(peerName)) {
+        StreamSocket sock(addr);
+        PeerHandler *handler = new PeerHandler(this->conf, &this->pool,
+                                               this, sock, true);
+        this->mutex.lock();
+        this->handlers.push_back(handler);
+        this->mutex.unlock();
+        if(this->verbose) {
+            cout << "Contacting " << peerName << " on address "
+                 << addr.toString() << endl;
+        }
+        this->pool.start(*handler);
+    }
+}
+
+void PeerManager::removePeer(PeerHandler *handler, string &peerName)
+{
+    this->mutex.lock();
+    vector<PeerHandler*>::iterator it =
+        find(this->handlers.begin(), this->handlers.end(), handler);
+    if(it < this->handlers.end()) {
+        this->handlers.erase(it);
+    }
+    if(this->peers.count(peerName) && this->peers[peerName] == handler) {
+        this->peers.erase(this->peers.find(peerName));
+    }
+    this->mutex.unlock();
+}
+
+bool PeerManager::addPeer(PeerHandler *handler, string &peerName)
+{
+    this->mutex.lock();
+    bool result = true;
+    if(this->peers.count(peerName)) {
+        if(handler->compare(this->peers[peerName])) {
+            this->peers[peerName]->sendClose();
+            this->peers[peerName] = handler;
+        } else {
+            handler->sendClose();
+            result = false;
+        }
+    } else {
+        this->peers[peerName] = handler;
+    }
+    this->mutex.unlock();
+    return result;
+}
+
+PeerHandler::PeerHandler(Config *conf, Poco::ThreadPool *pool,
+                         PeerManager *manager, StreamSocket &sock,
                          bool initiator):
-    TCPServerConnection(socket),
     conf(conf),
     pool(pool),
     manager(manager),
+    sock(sock),
     peerName(""),
-    t1(conf.getInt("p2p_client.keepalive_delay")),
-    t2(conf.getInt("p2p_client.keepalive_interval")),
-    challenge(conf.getChallenge()),
+    challenge(conf->getChallenge()),
+    t1(conf->getInt("p2p_client.keepalive_delay")),
+    t2(conf->getInt("p2p_client.keepalive_interval")),
     initiator(initiator),
-    isRunning(false),
-    acceptVerified(false),
-    acceptSent(false),
-    verbose(conf.getBool("p2p_client.verbose"))
+    verbose(conf->getBool("p2p_client.verbose"))
 {
 }
 
 void PeerHandler::run()
 {
     this->isRunning = true;
-    StreamSocket &socket = this->socket();
-    char buffer[1024];
-    int n = socket.receiveBytes(buffer, sizeof(buffer));
-    string s(buffer);
-    this->treatMsg(s);
+    this->sendJoin();
+    while(this->isRunning) {
+        char buffer[1024];
+        int n = this->sock.receiveBytes(buffer, sizeof(buffer));
+        if(n > 0) {
+            string s(buffer);
+            this->treatMsg(s);
+        } else {
+            this->isRunning = false;
+        }
+    }
 }
 
-bool PeerHandler::compare(PeerHandler *other)
+void PeerHandler::sendMsg(string msg)
 {
-    string distantName = this->conf.getString("p2p_client.peer_name");
-    int cmpValue = distantName.compare(this->peerName);
-    return this->initiator ? cmpValue > 0 : cmpValue < 0;
+    if(this->verbose) {
+        cout << "Message: " << msg << " sent to peer " << this->peerName
+             << " on address " << this->sock.peerAddress().toString()
+             << endl;
+    }
+    this->sock.sendBytes(msg.c_str(), msg.size());
 }
 
 void PeerHandler::sendClose()
@@ -65,9 +138,43 @@ void PeerHandler::sendClose()
     this->close();
 }
 
-void PeerHandler::sendMsg(string msg)
+void PeerHandler::sendJoin()
 {
-    this->socket().sendBytes(msg.c_str(), msg.size());
+    ostringstream oss;
+    oss << "JOIN " << this->challenge << endl;
+    this->sendMsg(oss.str());
+    this->t1.start(TimerCallback<PeerHandler>(*this, &PeerHandler::onTimer1),
+                  *this->pool);
+}
+
+void PeerHandler::sendKo(int error)
+{
+    ostringstream oss;
+    oss << "KO " << error << endl;
+    this->sendMsg(oss.str());
+}
+
+void PeerHandler::close()
+{
+    if(this->verbose) {
+        cout << "Closing connection with " << this->peerName << " on address "
+             << this->sock.peerAddress().toString();
+    }
+    this->manager->removePeer(this, this->peerName);
+    this->isRunning = false;
+    this->t1.stop();
+    this->t2.stop();
+}
+
+string PeerHandler::getInitiatorName()
+{
+    return this->initiator ? this->conf->getString("p2p_client.peer_name") :
+        this->peerName;
+}
+
+bool PeerHandler::compare(PeerHandler *other)
+{
+    return this->getInitiatorName().compare(other->getInitiatorName()) < 0;
 }
 
 int getInt(string s)
@@ -80,6 +187,11 @@ int getInt(string s)
 
 void PeerHandler::treatMsg(string msg)
 {
+    if(this->verbose) {
+        cout << "Message received from peer " << this->peerName
+             << " on address " << this->sock.peerAddress().toString()
+             << endl;
+    }
     RegularExpression joinMsg("^JOIN ([a-z0-9]+) (-?[0-9]+).*",
                               RegularExpression::RE_DOTALL);
     RegularExpression acceptMsg("^ACCEPT (-?[0-9]+).*",
@@ -119,24 +231,10 @@ void PeerHandler::treatKo(int error)
     }
 }
 
-void PeerHandler::sendJoin()
-{
-    ostringstream oss;
-    oss << "JOIN " << this->challenge << endl;
-    this->sendMsg(oss.str());
-    this->t1.start(TimerCallback<PeerHandler>(*this, &PeerHandler::onTimer1),
-                  this->pool);
-}
-
-void PeerHandler::onTimer1(Poco::Timer &timer)
-{
-    this->sendClose();
-}
-
 void PeerHandler::addPeer()
 {
     if(this->acceptSent && this->acceptVerified) {
-        this->manager.addPeer(*this, this->peerName);
+        this->manager->addPeer(this, this->peerName);
     }
 }
 
@@ -151,11 +249,6 @@ void PeerHandler::verifyAccept(int nbr)
     }
 }
 
-void PeerHandler::onTimer2(Poco::Timer &timer)
-{
-    this->sendMsg("OK\n");
-}
-
 void PeerHandler::treatJoin(string peerName, int nbr)
 {
     this->peerName = peerName;
@@ -164,76 +257,16 @@ void PeerHandler::treatJoin(string peerName, int nbr)
     this->sendMsg(oss.str());
     this->acceptSent = true;
     this->t2.start(TimerCallback<PeerHandler>(*this, &PeerHandler::onTimer2),
-                   this->pool);
+                   *this->pool);
     this->addPeer();
 }
 
-void PeerHandler::sendKo(int error)
+void PeerHandler::onTimer1(Poco::Timer &timer)
 {
-    ostringstream oss;
-    oss << "KO " << error << endl;
-    this->sendMsg(oss.str());
+    this->sendClose();
 }
 
-void PeerHandler::close()
+void PeerHandler::onTimer2(Poco::Timer &timer)
 {
-    if(this->verbose) {
-        cout << "Closing connection with " << this->peerName << " on address "
-             << this->socket().peerAddress().toString();
-    }
-    this->manager.removePeer(*this, this->peerName);
-    this->isRunning = false;
-    this->t1.stop();
-    this->t2.stop();
-}
-
-PeerManager::PeerManager(Config &conf):
-    conf(conf),
-    pool(),
-    peers(),
-    lock(),
-    TCPServer(new PeerFactory(conf, this->pool, *this),
-              conf.getAddress())
-{
-}
-
-void PeerManager::contact(SocketAddress &addr, string peerName)
-{
-    if(!this->peers.count(peerName)) {
-        StreamSocket socket(addr);
-        PeerHandler handler(socket, this->conf, this->pool, *this, true);
-        if(this->conf.getBool("p2p_client.verbose")) {
-            cout << "Contacting " << peerName << " on address "
-                 << addr.toString() << endl;
-        }
-        this->pool.start(handler);
-    }
-}
-
-void PeerManager::removePeer(PeerHandler &handler, string &peerName)
-{
-    this->lock.lock();
-    if(this->peers.count(peerName) && this->peers[peerName] == &handler) {
-        this->peers.erase(this->peers.find(peerName));
-    }
-    this->lock.unlock();
-}
-
-bool PeerManager::addPeer(PeerHandler &handler, string &peerName)
-{
-    this->lock.lock();
-    bool result = true;
-    if(this->peers.count(peerName)) {
-        if(handler.compare(this->peers[peerName])) {
-            this->peers[peerName]->sendClose();
-            this->peers[peerName] = &handler;
-        } else {
-            handler.sendClose();
-            result = false;
-        }
-    } else {
-        this->peers[peerName] = &handler;
-    }
-    this->lock.unlock();
-    return result;
+    this->sendMsg("OK\n");
 }

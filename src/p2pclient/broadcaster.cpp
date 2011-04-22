@@ -5,15 +5,15 @@
 using namespace std;
 using Poco::TimerCallback;
 
-Broadcaster::Broadcaster(Config &conf, PeerManager &maneger):
+Broadcaster::Broadcaster(Config *conf, PeerManager *manager):
     conf(conf),
     manager(manager),
-    bcastAddr(conf.getBroadcastAddress()),
-    srcAddr(conf.getAddress()),
+    bcastAddr(conf->getBroadcastAddress()),
+    srcAddr(conf->getAddress()),
     s1(this->bcastAddr, true), s2(this->srcAddr, true),
     pool(),
-    t(1, conf.getInt("p2p_client.bcast_interval")),
-    verbose(conf.getBool("p2p_client.verbose"))
+    t(1, conf->getInt("p2p_client.bcast_interval")),
+    verbose(conf->getBool("p2p_client.verbose"))
 {
     this->s2.setBroadcast(true);
 }
@@ -40,10 +40,10 @@ void Broadcaster::run()
         buf[n] = '\0';
 
         if(src.toString() != this->srcAddr.toString()) {
-            this->treatMsg(src, string(buf));
             if(this->verbose) {
                 cout << src.toString() << ": " << buf << endl;
             }
+            this->treatMsg(src, string(buf));
         }
     }
 }
@@ -55,8 +55,8 @@ void Broadcaster::treatMsg(SocketAddress &src, string msg)
     vector<string> v;
     if(re.match(msg)) {
         re.split(msg, v);
-        if(this->conf.getString("p2p_client.group") == v[2]) {
-            this->manager.contact(src, v[1]);
+        if(this->conf->getString("p2p_client.group") == v[2]) {
+            this->manager->contact(src, v[1]);
         }
     }
 }
@@ -70,7 +70,7 @@ void Broadcaster::onTimer(Poco::Timer &timer)
     }
 
     std::string msg =
-        "JOIN " + this->conf.getString("p2p_client.peer_name") +
-        " " + this->conf.getString("p2p_client.group");
+        "JOIN " + this->conf->getString("p2p_client.peer_name") +
+        " " + this->conf->getString("p2p_client.group");
     this->s2.sendTo(msg.data(), msg.size(), bcastAddr);
 }

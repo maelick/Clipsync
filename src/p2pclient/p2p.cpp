@@ -3,19 +3,26 @@
 using namespace std;
 
 P2PClient::P2PClient(string &confFile):
-    conf(confFile),
-    manager(this->conf),
-    b(this->conf, this->manager)
+    conf(new Config(confFile))
 {
+    this->manager = new PeerManager(this->conf);
+    this->b = new Broadcaster(this->conf, this->manager);
 }
 
-Config& P2PClient::getConfig()
+P2PClient::~P2PClient()
+{
+    delete this->conf;
+    delete this->manager;
+    delete this->b;
+}
+
+Config* P2PClient::getConfig()
 {
     return this->conf;
 }
 
 void P2PClient::start()
 {
-    this->manager.start();
-    this->b.start();
+    this->manager->start();
+    this->b->start();
 }
