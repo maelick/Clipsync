@@ -36,8 +36,7 @@ void Broadcaster::run()
     while(true) {
         SocketAddress src;
         char buf[1024];
-        int n = this->s1.receiveFrom(buf, sizeof(buf)-1, src);
-        buf[n] = '\0';
+        this->s1.receiveFrom(buf, sizeof(buf), src);
 
         if(src.toString() != this->srcAddr.toString()) {
             if(this->verbose) {
