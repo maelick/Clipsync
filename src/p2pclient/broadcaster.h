@@ -7,7 +7,7 @@
 #include <Poco/ThreadPool.h>
 #include <Poco/Timer.h>
 #include "config.h"
-#include "handler.h"
+#include "peer_manager.h"
 
 using Poco::Net::SocketAddress;
 using Poco::Net::DatagramSocket;

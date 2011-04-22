@@ -4,7 +4,7 @@
 #include <Poco/ThreadPool.h>
 #include "config.h"
 #include "broadcaster.h"
-#include "handler.h"
+#include "peer_manager.h"
 
 class P2PClient
 {

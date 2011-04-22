@@ -21,7 +21,7 @@ ifeq ($(DEBUG), yes)
 endif
 
 # Dependencies
-main.exe: broadcaster.o p2p.o config.o handler.o
+main.exe: broadcaster.o p2p.o config.o peer_handler.o peer_manager.o
 
 # Rules (cont'd)
 %.exe: %.o
