@@ -21,8 +21,9 @@ PeerHandler::PeerHandler(Config *conf, Poco::ThreadPool *pool,
     sock(sock),
     peerName(""),
     challenge(conf->getChallenge()),
-    t1(conf->getInt("p2p_client.keepalive_delay")),
-    t2(conf->getInt("p2p_client.keepalive_interval")),
+    t1(conf->getInt("p2p_client.keepalive_delay"),
+       conf->getInt("p2p_client.keepalive_delay")),
+    t2(0, conf->getInt("p2p_client.keepalive_interval")),
     initiator(initiator),
     verbose(conf->getBool("p2p_client.verbose"))
 {
@@ -40,6 +41,7 @@ void PeerHandler::run()
             this->treatMsg(s);
         } else {
             this->isRunning = false;
+            this->close();
         }
     }
 }
@@ -54,16 +56,17 @@ void PeerHandler::sendMsg(string msg)
     this->sock.sendBytes(msg.c_str(), msg.size());
 }
 
-void PeerHandler::sendClose()
+void PeerHandler::sendClose(int reason)
 {
-    this->sendKo(0);
+    this->sendKo(reason);
     this->close();
 }
 
 void PeerHandler::sendJoin()
 {
     ostringstream oss;
-    oss << "JOIN " << this->challenge << endl;
+    oss << "JOIN " << this->conf->getString("p2p_client.peer_name")
+        << " " << this->challenge << endl;
     this->sendMsg(oss.str());
     this->t1.start(TimerCallback<PeerHandler>(*this, &PeerHandler::onTimer1),
                   *this->pool);
@@ -109,11 +112,6 @@ int getInt(string s)
 
 void PeerHandler::treatMsg(string msg)
 {
-    if(this->verbose) {
-        cout << "Message received from peer " << this->peerName
-             << " on address " << this->sock.peerAddress().toString()
-             << endl;
-    }
     RegularExpression joinMsg("^JOIN ([a-z0-9]+) (-?[0-9]+).*",
                               RegularExpression::RE_DOTALL);
     RegularExpression acceptMsg("^ACCEPT (-?[0-9]+).*",
@@ -136,6 +134,10 @@ void PeerHandler::treatMsg(string msg)
     } else if(koMsg.match(msg)) {
         koMsg.split(msg, v);
         this->treatKo(getInt(v[1]));
+    } else if(this->verbose) {
+        cout << "Unknown message received from peer " << this->peerName
+             << " on address " << this->sock.peerAddress().toString()
+             << endl;
     }
 }
 
@@ -148,6 +150,12 @@ void PeerHandler::treatKo(int error)
 {
     switch(error){
     case 0: // Close
+        this->close();
+        break;
+    case 1: // Timeout
+        this->close();
+        break;
+    case 2: // Invalid accept
         this->close();
         break;
     }
@@ -167,7 +175,7 @@ void PeerHandler::verifyAccept(int nbr)
         this->acceptVerified = true;
         this->addPeer();
     } else {
-        this->sendClose();
+        this->sendClose(2);
     }
 }
 
@@ -185,7 +193,8 @@ void PeerHandler::treatJoin(string peerName, int nbr)
 
 void PeerHandler::onTimer1(Poco::Timer &timer)
 {
-    this->sendClose();
+    this->t1.stop();
+    this->sendClose(1);
 }
 
 void PeerHandler::onTimer2(Poco::Timer &timer)

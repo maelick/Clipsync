@@ -72,10 +72,10 @@ bool PeerManager::addPeer(PeerHandler *handler, string &peerName)
     bool result = true;
     if(this->peers.count(peerName)) {
         if(handler->compare(this->peers[peerName])) {
-            this->peers[peerName]->sendClose();
+            this->peers[peerName]->sendClose(0);
             this->peers[peerName] = handler;
         } else {
-            handler->sendClose();
+            handler->sendClose(0);
             result = false;
         }
     } else {

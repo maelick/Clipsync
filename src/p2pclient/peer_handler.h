@@ -18,7 +18,7 @@ public:
     PeerHandler(Config *conf, Poco::ThreadPool *pool, PeerManager *manager,
                 StreamSocket &sock, bool initiator);
     void run();
-    void sendClose();
+    void sendClose(int reason);
     bool compare(PeerHandler *other);
 
 private:
