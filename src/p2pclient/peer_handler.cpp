@@ -120,6 +120,8 @@ void PeerHandler::treatMsg(string msg)
                             RegularExpression::RE_DOTALL);
     RegularExpression koMsg("^KO ([0-9]+).*",
                             RegularExpression::RE_DOTALL);
+    RegularExpression dataMsg("^DATA ([0-9]+) (.*)",
+                              RegularExpression::RE_DOTALL);
 
     vector<string> v;
 
@@ -134,11 +136,42 @@ void PeerHandler::treatMsg(string msg)
     } else if(koMsg.match(msg)) {
         koMsg.split(msg, v);
         this->treatKo(getInt(v[1]));
+    } else if(dataMsg.match(msg) && this->acceptSent && this->acceptVerified) {
+        dataMsg.split(msg, v);
+        this->treatData(getInt(v[1]), v[2]);
     } else if(this->verbose) {
         cout << "Unknown message received from peer " << this->peerName
              << " on address " << this->sock.peerAddress().toString()
              << endl;
     }
+}
+
+void PeerHandler::treatData(int length, string data)
+{
+    ostringstream buf;
+    buf << data;
+
+    while(buf.str().size() < length) {
+        char buffer[1024];
+        int n = this->sock.receiveBytes(buffer, sizeof(buffer));
+        if(n > 0) {
+            data = buffer;
+            buf << data;
+        } else {
+            this->isRunning = false;
+            this->close();
+        }
+    }
+
+    this->manager->syncClipboard(buf.str().substr(0, length));
+}
+
+void PeerHandler::sendData(string data)
+{
+    ostringstream oss;
+    oss << "DATA " << data.size()
+        << " " << data << endl;
+    this->sendMsg(oss.str());
 }
 
 void PeerHandler::treatOk()

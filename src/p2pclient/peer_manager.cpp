@@ -84,3 +84,21 @@ bool PeerManager::addPeer(PeerHandler *handler, string &peerName)
     this->mutex.unlock();
     return result;
 }
+
+void PeerManager::syncClipboard(string data)
+{
+    this->mutex.lock();
+    this->clipboard = data;
+    this->mutex.unlock();
+}
+
+void PeerManager::setClipboard(string data)
+{
+    this->mutex.lock();
+    this->clipboard = data;
+    for(map<string,PeerHandler*>::iterator it = this->peers.begin();
+        it != this->peers.end(); it++) {
+        it->second->sendData(this->clipboard);
+    }
+    this->mutex.unlock();
+}

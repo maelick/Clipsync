@@ -22,6 +22,8 @@ public:
     void contact(SocketAddress &addr, std::string peerName);
     void removePeer(PeerHandler *handler, std::string &peerName);
     bool addPeer(PeerHandler *handler, std::string &peerName);
+    void syncClipboard(std::string data);
+    void setClipboard(std::string data);
 
 private:
     Config *conf;
@@ -30,6 +32,7 @@ private:
     std::map<std::string,PeerHandler*> peers;
     Poco::ThreadPool pool;
     Poco::Mutex mutex;
+    std::string clipboard;
     bool verbose;
 };
 

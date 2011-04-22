@@ -20,6 +20,7 @@ public:
     void run();
     void sendClose(int reason);
     bool compare(PeerHandler *other);
+    void sendData(std::string data);
 
 private:
     void sendMsg(std::string msg);
@@ -28,6 +29,7 @@ private:
     void close();
     std::string getInitiatorName();
     void treatMsg(std::string msg);
+    void treatData(int length, std::string data);
     void treatOk();
     void treatKo(int error);
     void addPeer();
