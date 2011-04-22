@@ -5,7 +5,7 @@ using namespace std;
 P2PClient::P2PClient(string &confFile):
     conf(new Config(confFile))
 {
-    this->manager = new PeerManager(this->conf);
+    this->manager = new ClipboardManager(this->conf);
     this->b = new Broadcaster(this->conf, this->manager);
 }
 

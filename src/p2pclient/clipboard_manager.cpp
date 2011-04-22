@@ -1,11 +1,11 @@
-#include "peer_manager.h"
+#include "clipboard_manager.h"
 
 #include <iostream>
 
 using namespace Poco::Net;
 using namespace std;
 
-PeerManager::PeerManager(Config *conf):
+ClipboardManager::ClipboardManager(Config *conf):
     conf(conf),
     ssock(conf->getAddress()),
     pool(),
@@ -13,12 +13,12 @@ PeerManager::PeerManager(Config *conf):
 {
 }
 
-void PeerManager::start()
+void ClipboardManager::start()
 {
     this->pool.start(*this);
 }
 
-void PeerManager::run()
+void ClipboardManager::run()
 {
     while(true) {
         SocketAddress addr;
@@ -35,7 +35,7 @@ void PeerManager::run()
     }
 }
 
-void PeerManager::contact(SocketAddress &addr, string peerName)
+void ClipboardManager::contact(SocketAddress &addr, string peerName)
 {
     if(!this->peers.count(peerName)) {
         StreamSocket sock(addr);
@@ -52,7 +52,7 @@ void PeerManager::contact(SocketAddress &addr, string peerName)
     }
 }
 
-void PeerManager::removePeer(PeerHandler *handler, string &peerName)
+void ClipboardManager::removePeer(PeerHandler *handler, string &peerName)
 {
     this->mutex.lock();
     vector<PeerHandler*>::iterator it =
@@ -66,7 +66,7 @@ void PeerManager::removePeer(PeerHandler *handler, string &peerName)
     this->mutex.unlock();
 }
 
-bool PeerManager::addPeer(PeerHandler *handler, string &peerName)
+bool ClipboardManager::addPeer(PeerHandler *handler, string &peerName)
 {
     this->mutex.lock();
     bool result = true;
@@ -85,14 +85,14 @@ bool PeerManager::addPeer(PeerHandler *handler, string &peerName)
     return result;
 }
 
-void PeerManager::syncClipboard(string data)
+void ClipboardManager::syncClipboard(string data)
 {
     this->mutex.lock();
     this->clipboard = data;
     this->mutex.unlock();
 }
 
-void PeerManager::setClipboard(string data)
+void ClipboardManager::setClipboard(string data)
 {
     this->mutex.lock();
     this->clipboard = data;

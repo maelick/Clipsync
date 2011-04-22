@@ -5,7 +5,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "peer_manager.h"
+#include "clipboard_manager.h"
 
 using Poco::TimerCallback;
 using Poco::RegularExpression;
@@ -13,7 +13,7 @@ using namespace Poco::Net;
 using namespace std;
 
 PeerHandler::PeerHandler(Config *conf, Poco::ThreadPool *pool,
-                         PeerManager *manager, StreamSocket &sock,
+                         ClipboardManager *manager, StreamSocket &sock,
                          bool initiator):
     conf(conf),
     pool(pool),

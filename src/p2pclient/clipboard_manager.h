@@ -13,10 +13,10 @@
 
 using Poco::Net::ServerSocket;
 
-class PeerManager: public Poco::Runnable
+class ClipboardManager: public Poco::Runnable
 {
 public:
-    PeerManager(Config *conf);
+    ClipboardManager(Config *conf);
     void start();
     void run();
     void contact(SocketAddress &addr, std::string peerName);

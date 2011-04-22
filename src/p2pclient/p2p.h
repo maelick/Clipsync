@@ -4,7 +4,7 @@
 #include <Poco/ThreadPool.h>
 #include "config.h"
 #include "broadcaster.h"
-#include "peer_manager.h"
+#include "clipboard_manager.h"
 
 class P2PClient
 {
@@ -16,7 +16,7 @@ public:
 
 private:
     Config *conf;
-    PeerManager *manager;
+    ClipboardManager *manager;
     Broadcaster *b;
 };
 

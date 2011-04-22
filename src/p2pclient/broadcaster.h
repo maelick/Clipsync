@@ -7,7 +7,7 @@
 #include <Poco/ThreadPool.h>
 #include <Poco/Timer.h>
 #include "config.h"
-#include "peer_manager.h"
+#include "clipboard_manager.h"
 
 using Poco::Net::SocketAddress;
 using Poco::Net::DatagramSocket;
@@ -15,7 +15,7 @@ using Poco::Net::DatagramSocket;
 class Broadcaster: public Poco::Runnable
 {
 public:
-    Broadcaster(Config *conf, PeerManager *manager);
+    Broadcaster(Config *conf, ClipboardManager *manager);
     void start();
     void onTimer(Poco::Timer &timer);
     void run();
@@ -24,7 +24,7 @@ private:
     void treatMsg(SocketAddress &src, std::string msg);
 
     Config *conf;
-    PeerManager *manager;
+    ClipboardManager *manager;
     SocketAddress bcastAddr, srcAddr;
     DatagramSocket s1;
     DatagramSocket s2;

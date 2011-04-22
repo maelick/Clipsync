@@ -10,12 +10,12 @@
 
 using Poco::Net::StreamSocket;
 
-class PeerManager;
+class ClipboardManager;
 
 class PeerHandler: public Poco::Runnable
 {
 public:
-    PeerHandler(Config *conf, Poco::ThreadPool *pool, PeerManager *manager,
+    PeerHandler(Config *conf, Poco::ThreadPool *pool, ClipboardManager *manager,
                 StreamSocket &sock, bool initiator);
     void run();
     void sendClose(int reason);
@@ -40,7 +40,7 @@ private:
 
     Config *conf;
     Poco::ThreadPool *pool;
-    PeerManager *manager;
+    ClipboardManager *manager;
     StreamSocket sock;
     std::string peerName;
     int challenge;

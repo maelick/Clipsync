@@ -5,7 +5,7 @@
 using namespace std;
 using Poco::TimerCallback;
 
-Broadcaster::Broadcaster(Config *conf, PeerManager *manager):
+Broadcaster::Broadcaster(Config *conf, ClipboardManager *manager):
     conf(conf),
     manager(manager),
     bcastAddr(conf->getBroadcastAddress()),
