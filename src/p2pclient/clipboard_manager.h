@@ -1,5 +1,5 @@
-#ifndef DEF_PEER_MANAGER_H
-#define DEF_PEER_MANAGER_H
+#ifndef DEF_CLIPBOARD_MANAGER_H
+#define DEF_CLIPBOARD_MANAGER_H
 
 #include <map>
 #include <Poco/Mutex.h>
