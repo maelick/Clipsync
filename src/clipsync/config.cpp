@@ -40,87 +40,134 @@ bool Config::getBool(string property)
 
 NetworkInterface Config::getInterface()
 {
-    return NetworkInterface::forName(this->getString("p2p_client.interface"),
-                                     this->getBool("p2p_client.use_ipv6"));
+    return NetworkInterface::forName(this->getString("net_frontend.interface"),
+                                     this->getBool("net_frontend.use_ipv6"));
 }
 
 SocketAddress Config::getAddress()
 {
     return SocketAddress(this->getInterface().address(),
-                         this->getInt("p2p_client.port"));
+                         this->getInt("net_frontend.port"));
 }
 
 SocketAddress Config::getBroadcastAddress()
 {
     return SocketAddress(this->getInterface().broadcastAddress(),
-                         this->getInt("p2p_client.bcast_port"));
+                         this->getInt("net_frontend.bcast_port"));
+}
+
+int Config::getBcastInterval()
+{
+    return this->conf->getInt("net_frontend.bcast_interval");
+}
+
+string Config::getPeerName()
+{
+    return this->conf->getString("net_frontend.peer_name");
+}
+
+string Config::getGroup()
+{
+    return this->conf->getString("net_frontend.group");
+}
+
+int Config::getKeepaliveDelay()
+{
+    return this->conf->getInt("net_frontend.keepalive_delay");
+}
+
+int Config::getKeepaliveInterval()
+{
+    return this->conf->getInt("net_frontend.keepalive_interval");
+}
+
+bool Config::getVerboseNet()
+{
+    return this->conf->getBool("net_frontend.verbose");
+}
+
+bool Config::getVerboseBcast()
+{
+    return this->conf->getBool("net_frontend.verbose_bcast");
+}
+
+bool Config::getVerbosePeer()
+{
+    return this->conf->getBool("net_frontend.verbose_peer");
 }
 
 SocketAddress Config::getLocalAddress()
 {
-    return SocketAddress("localhost", this->getInt("p2p_client.local_port"));
+    return SocketAddress("localhost",
+                         this->getInt("local_frontend.local_port"));
 }
 
-void Config::initConfigFile(string &confFile) {
-    if(!this->conf->hasProperty("p2p_client.interface")) {
-        this->conf->setString("p2p_client.interface", DEFAULT_INTERFACE);
-    }
-
-    if(!this->conf->hasProperty("p2p_client.use_ipv6")) {
-        this->conf->setBool("p2p_client.use_ipv6", DEFAULT_USE_IPv6);
-    }
-
-    if(!this->conf->hasProperty("p2p_client.port")) {
-        this->conf->setInt("p2p_client.port", DEFAULT_PORT);
-    }
-
-    if(!this->conf->hasProperty("p2p_client.bcast_port")) {
-        this->conf->setInt("p2p_client.bcast_port", DEFAULT_BCAST_PORT);
-    }
-
-    if(!this->conf->hasProperty("p2p_client.local_port")) {
-        this->conf->setInt("p2p_client.local_port", DEFAULT_LOCAL_PORT);
-    }
-
-    if(!this->conf->hasProperty("p2p_client.bcast_interval")) {
-        this->conf->setInt("p2p_client.bcast_interval",
-                           DEFAULT_BCAST_INTERVAL);
-    }
-
-    if(!this->conf->hasProperty("p2p_client.peer_name")) {
-        this->conf->setString("p2p_client.peer_name", DEFAULT_PEER_NAME);
-    }
-
-    if(!this->conf->hasProperty("p2p_client.group")) {
-        this->conf->setString("p2p_client.group", DEFAULT_GROUP);
-    }
-
-    if(!this->conf->hasProperty("p2p_client.key")) {
-        this->conf->setString("p2p_client.key", DEFAULT_KEY);
-    }
-
-    if(!this->conf->hasProperty("p2p_client.salt")) {
-        this->conf->setString("p2p_client.salt", DEFAULT_SALT);
-    }
-
-    if(!this->conf->hasProperty("p2p_client.keepalive_delay")) {
-        this->conf->setInt("p2p_client.keepalive_delay",
-                           DEFAULT_KEEPALIVE_DELAY);
-    }
-
-    if(!this->conf->hasProperty("p2p_client.keepalive_interval")) {
-        this->conf->setInt("p2p_client.keepalive_interval",
-                           DEFAULT_KEEPALIVE_INTERVAL);
-    }
-
-    if(!this->conf->hasProperty("p2p_client.verbose")) {
-        this->conf->setBool("p2p_client.verbose", false);
-    }
-
-    this->conf->save(confFile);
+bool Config::getVerboseLocal()
+{
+    return this->conf->getBool("local_frontend.verbose");
 }
 
 int Config::getChallenge()
 {
     return this->gen.next();
+}
+
+void Config::initConfigFile(string &confFile) {
+    if(!this->conf->hasProperty("net_frontend.interface")) {
+        this->conf->setString("net_frontend.interface", DEFAULT_INTERFACE);
+    }
+    if(!this->conf->hasProperty("net_frontend.use_ipv6")) {
+        this->conf->setBool("net_frontend.use_ipv6", DEFAULT_USE_IPv6);
+    }
+    if(!this->conf->hasProperty("net_frontend.port")) {
+        this->conf->setInt("net_frontend.port", DEFAULT_PORT);
+    }
+    if(!this->conf->hasProperty("net_frontend.bcast_port")) {
+        this->conf->setInt("net_frontend.bcast_port", DEFAULT_BCAST_PORT);
+    }
+    if(!this->conf->hasProperty("net_frontend.bcast_interval")) {
+        this->conf->setInt("net_frontend.bcast_interval",
+                           DEFAULT_BCAST_INTERVAL);
+    }
+
+    if(!this->conf->hasProperty("net_frontend.peer_name")) {
+        this->conf->setString("net_frontend.peer_name", DEFAULT_PEER_NAME);
+    }
+    if(!this->conf->hasProperty("net_frontend.group")) {
+        this->conf->setString("net_frontend.group", DEFAULT_GROUP);
+    }
+    if(!this->conf->hasProperty("net_frontend.key")) {
+        this->conf->setString("net_frontend.key", DEFAULT_KEY);
+    }
+    if(!this->conf->hasProperty("net_frontend.salt")) {
+        this->conf->setString("net_frontend.salt", DEFAULT_SALT);
+    }
+
+    if(!this->conf->hasProperty("net_frontend.keepalive_delay")) {
+        this->conf->setInt("net_frontend.keepalive_delay",
+                           DEFAULT_KEEPALIVE_DELAY);
+    }
+    if(!this->conf->hasProperty("net_frontend.keepalive_interval")) {
+        this->conf->setInt("net_frontend.keepalive_interval",
+                           DEFAULT_KEEPALIVE_INTERVAL);
+    }
+
+    if(!this->conf->hasProperty("net_frontend.verbose")) {
+        this->conf->setBool("net_frontend.verbose", false);
+    }
+    if(!this->conf->hasProperty("net_frontend.verbose_bcast")) {
+        this->conf->setBool("net_frontend.verbose_bcast", false);
+    }
+    if(!this->conf->hasProperty("net_frontend.verbose_peer")) {
+        this->conf->setBool("net_frontend.verbose_peer", false);
+    }
+
+    if(!this->conf->hasProperty("local_frontend.local_port")) {
+        this->conf->setInt("local_frontend.local_port", DEFAULT_LOCAL_PORT);
+    }
+    if(!this->conf->hasProperty("local_frontend.verbose")) {
+        this->conf->setBool("local_frontend.verbose", false);
+    }
+
+    this->conf->save(confFile);
 }

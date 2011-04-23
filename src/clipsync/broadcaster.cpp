@@ -12,8 +12,8 @@ Broadcaster::Broadcaster(Config *conf, ClipboardManager *manager):
     srcAddr(conf->getAddress()),
     s1(this->bcastAddr, true), s2(this->srcAddr, true),
     pool(),
-    t(1, conf->getInt("p2p_client.bcast_interval")),
-    verbose(conf->getBool("p2p_client.verbose"))
+    t(1, conf->getBcastInterval()),
+    verbose(conf->getVerboseBcast())
 {
     this->s2.setBroadcast(true);
 }
@@ -54,7 +54,7 @@ void Broadcaster::treatMsg(SocketAddress &src, string msg)
     vector<string> v;
     if(re.match(msg)) {
         re.split(msg, v);
-        if(this->conf->getString("p2p_client.group") == v[2]) {
+        if(this->conf->getGroup() == v[2]) {
             this->manager->contact(src, v[1]);
         }
     }
@@ -69,7 +69,7 @@ void Broadcaster::onTimer(Poco::Timer &timer)
     }
 
     std::string msg =
-        "JOIN " + this->conf->getString("p2p_client.peer_name") +
-        " " + this->conf->getString("p2p_client.group");
+        "JOIN " + this->conf->getPeerName() +
+        " " + this->conf->getGroup();
     this->s2.sendTo(msg.data(), msg.size(), bcastAddr);
 }

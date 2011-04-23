@@ -16,17 +16,27 @@ class Config
 {
 public:
     Config(std::string &confFile);
-    std::string getString(std::string property);
-    int getInt(std::string property);
-    bool getBool(std::string property);
-    NetworkInterface getInterface();
     SocketAddress getAddress();
     SocketAddress getBroadcastAddress();
+    int getBcastInterval();
+    std::string getPeerName();
+    std::string getGroup();
+    int getKeepaliveDelay();
+    int getKeepaliveInterval();
+    bool getVerboseNet();
+    bool getVerboseBcast();
+    bool getVerbosePeer();
     SocketAddress getLocalAddress();
+    bool getVerboseLocal();
     int getChallenge();
 
 private:
+    int getInt(std::string property);
+    bool getBool(std::string property);
+    std::string getString(std::string property);
+    NetworkInterface getInterface();
     void initConfigFile(std::string &confFile);
+
     Poco::AutoPtr<XMLConfiguration> conf;
     Random gen;
 };

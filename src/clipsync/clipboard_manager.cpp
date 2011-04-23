@@ -10,7 +10,7 @@ ClipboardManager::ClipboardManager(Config *conf):
     ssock(conf->getAddress()),
     pool(),
     localManager(conf, &this->pool, this),
-    verbose(conf->getBool("p2p_client.verbose"))
+    verbose(conf->getVerboseNet())
 {
 }
 

@@ -16,7 +16,7 @@ LocalManager::LocalManager(Config *conf, Poco::ThreadPool *pool,
     ssock(conf->getLocalAddress()),
     pool(pool),
     manager(manager),
-    verbose(conf->getBool("p2p_client.verbose"))
+    verbose(conf->getVerboseLocal())
 {
 }
 
@@ -45,7 +45,7 @@ LocalHandler::LocalHandler(Config *conf, ClipboardManager *manager,
     conf(conf),
     manager(manager),
     sock(sock),
-    verbose(conf->getBool("p2p_client.verbose"))
+    verbose(conf->getVerboseLocal())
 {
 }
 

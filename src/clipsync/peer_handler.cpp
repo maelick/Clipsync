@@ -21,11 +21,11 @@ PeerHandler::PeerHandler(Config *conf, Poco::ThreadPool *pool,
     sock(sock),
     peerName(""),
     challenge(conf->getChallenge()),
-    t1(conf->getInt("p2p_client.keepalive_delay"),
-       conf->getInt("p2p_client.keepalive_delay")),
-    t2(0, conf->getInt("p2p_client.keepalive_interval")),
+    t1(conf->getKeepaliveDelay(),
+       conf->getKeepaliveDelay()),
+    t2(0, conf->getKeepaliveInterval()),
     initiator(initiator),
-    verbose(conf->getBool("p2p_client.verbose"))
+    verbose(conf->getVerbosePeer())
 {
 }
 
@@ -65,7 +65,7 @@ void PeerHandler::sendClose(int reason)
 void PeerHandler::sendJoin()
 {
     ostringstream oss;
-    oss << "JOIN " << this->conf->getString("p2p_client.peer_name")
+    oss << "JOIN " << this->conf->getPeerName()
         << " " << this->challenge << endl;
     this->sendMsg(oss.str());
     this->t1.start(TimerCallback<PeerHandler>(*this, &PeerHandler::onTimer1),
@@ -93,7 +93,7 @@ void PeerHandler::close()
 
 string PeerHandler::getInitiatorName()
 {
-    return this->initiator ? this->conf->getString("p2p_client.peer_name") :
+    return this->initiator ? this->conf->getPeerName() :
         this->peerName;
 }
 
