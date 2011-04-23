@@ -9,12 +9,14 @@ ClipboardManager::ClipboardManager(Config *conf):
     conf(conf),
     ssock(conf->getAddress()),
     pool(),
+    localManager(conf, &this->pool, this),
     verbose(conf->getBool("p2p_client.verbose"))
 {
 }
 
 void ClipboardManager::start()
 {
+    this->pool.start(this->localManager);
     this->pool.start(*this);
 }
 
@@ -25,9 +27,9 @@ void ClipboardManager::run()
         StreamSocket sock = this->ssock.acceptConnection(addr);
         PeerHandler *handler =  new PeerHandler(this->conf, &this->pool,
                                                 this, sock, false);
-        this->mutex.lock();
+        this->peerMutex.lock();
         this->handlers.push_back(handler);
-        this->mutex.unlock();
+        this->peerMutex.unlock();
         if(this->verbose) {
             cout << "Peer connected" << endl;
         }
@@ -41,9 +43,9 @@ void ClipboardManager::contact(SocketAddress &addr, string peerName)
         StreamSocket sock(addr);
         PeerHandler *handler = new PeerHandler(this->conf, &this->pool,
                                                this, sock, true);
-        this->mutex.lock();
+        this->peerMutex.lock();
         this->handlers.push_back(handler);
-        this->mutex.unlock();
+        this->peerMutex.unlock();
         if(this->verbose) {
             cout << "Contacting " << peerName << " on address "
                  << addr.toString() << endl;
@@ -52,9 +54,28 @@ void ClipboardManager::contact(SocketAddress &addr, string peerName)
     }
 }
 
+void ClipboardManager::removeLocal(LocalHandler *handler)
+{
+    this->localMutex.lock();
+    vector<LocalHandler*>::iterator it =
+        find(this->localHandlers.begin(), this->localHandlers.end(), handler);
+    if(it < this->localHandlers.end()) {
+        this->localHandlers.erase(it);
+    }
+    this->localMutex.unlock();
+    delete handler;
+}
+
+void ClipboardManager::addLocal(LocalHandler *handler)
+{
+    this->localMutex.lock();
+    this->localHandlers.push_back(handler);
+    this->localMutex.unlock();
+}
+
 void ClipboardManager::removePeer(PeerHandler *handler, string &peerName)
 {
-    this->mutex.lock();
+    this->peerMutex.lock();
     vector<PeerHandler*>::iterator it =
         find(this->handlers.begin(), this->handlers.end(), handler);
     if(it < this->handlers.end()) {
@@ -63,12 +84,13 @@ void ClipboardManager::removePeer(PeerHandler *handler, string &peerName)
     if(this->peers.count(peerName) && this->peers[peerName] == handler) {
         this->peers.erase(this->peers.find(peerName));
     }
-    this->mutex.unlock();
+    this->peerMutex.unlock();
+    delete handler;
 }
 
 bool ClipboardManager::addPeer(PeerHandler *handler, string &peerName)
 {
-    this->mutex.lock();
+    this->peerMutex.lock();
     bool result = true;
     if(this->peers.count(peerName)) {
         if(handler->compare(this->peers[peerName])) {
@@ -81,24 +103,42 @@ bool ClipboardManager::addPeer(PeerHandler *handler, string &peerName)
     } else {
         this->peers[peerName] = handler;
     }
-    this->mutex.unlock();
+    this->peerMutex.unlock();
     return result;
+}
+
+string ClipboardManager::getClipboard()
+{
+    this->clipMutex.lock();
+    string data = this->clipboard;
+    this->clipMutex.unlock();
+    return data;
 }
 
 void ClipboardManager::syncClipboard(string data)
 {
-    this->mutex.lock();
+    this->clipMutex.lock();
     this->clipboard = data;
-    this->mutex.unlock();
+    for(vector<LocalHandler*>::iterator it = this->localHandlers.begin();
+        it < this->localHandlers.end(); it++) {
+        (*it)->sendClipboard(data);
+    }
+    this->clipMutex.unlock();
 }
 
-void ClipboardManager::setClipboard(string data)
+void ClipboardManager::setClipboard(LocalHandler *handler, string data)
 {
-    this->mutex.lock();
+    this->clipMutex.lock();
     this->clipboard = data;
     for(map<string,PeerHandler*>::iterator it = this->peers.begin();
         it != this->peers.end(); it++) {
         it->second->sendData(this->clipboard);
     }
-    this->mutex.unlock();
+    for(vector<LocalHandler*>::iterator it = this->localHandlers.begin();
+        it < this->localHandlers.end(); it++) {
+        if((*it) != handler) {
+            (*it)->sendClipboard(data);
+        }
+    }
+    this->clipMutex.unlock();
 }

@@ -22,6 +22,7 @@ public:
     NetworkInterface getInterface();
     SocketAddress getAddress();
     SocketAddress getBroadcastAddress();
+    SocketAddress getLocalAddress();
     int getChallenge();
 
 private:

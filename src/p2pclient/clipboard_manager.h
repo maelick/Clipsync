@@ -10,6 +10,7 @@
 
 #include "config.h"
 #include "peer_handler.h"
+#include "local_frontend.h"
 
 using Poco::Net::ServerSocket;
 
@@ -20,18 +21,25 @@ public:
     void start();
     void run();
     void contact(SocketAddress &addr, std::string peerName);
+    void removeLocal(LocalHandler *handler);
+    void addLocal(LocalHandler *handler);
     void removePeer(PeerHandler *handler, std::string &peerName);
     bool addPeer(PeerHandler *handler, std::string &peerName);
+    std::string getClipboard();
     void syncClipboard(std::string data);
-    void setClipboard(std::string data);
+    void setClipboard(LocalHandler *handler, std::string data);
 
 private:
     Config *conf;
     ServerSocket ssock;
     std::vector<PeerHandler*> handlers;
+    std::vector<LocalHandler*> localHandlers;
     std::map<std::string,PeerHandler*> peers;
     Poco::ThreadPool pool;
-    Poco::Mutex mutex;
+    LocalManager localManager;
+    Poco::Mutex peerMutex;
+    Poco::Mutex localMutex;
+    Poco::Mutex clipMutex;
     std::string clipboard;
     bool verbose;
 };
