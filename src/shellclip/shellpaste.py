@@ -14,11 +14,14 @@ def get(port):
     s.close()
 
 if __name__ == "__main__":
-    try:
-        print get(int(sys.argv[1]))
-    except KeyboardInterrupt:
-        sys.exit(0)
-    except:
+    if len(sys.argv) > 1:
+        try:
+            print get(int(sys.argv[1]))
+        except KeyboardInterrupt:
+            sys.exit(0)
+        except:
+            sts.stderr.write("Unable to connect\n")
+    else:
         sys.stderr.write("Please specify as argument the port on which to " +
                          "get the clipboard as argument\n")
         sys.exit(1)

@@ -9,11 +9,14 @@ def send(port, data):
     s.close()
 
 if __name__ == "__main__":
-    try:
-        send(int(sys.argv[1]), sys.stdin.read())
-    except KeyboardInterrupt:
-        sys.exit(0)
-    except:
+    if len(sys.argv) > 1:
+        try:
+            send(int(sys.argv[1]), sys.stdin.read())
+        except KeyboardInterrupt:
+            sys.exit(0)
+        except:
+            sys.stderr.write("Unable to connect\n")
+            sys.exit(1)
+    else:
         sys.stderr.write("Please specify as argument the port on which to " +
                          "send the clipboard as argument\n")
-        sys.exit(1)
