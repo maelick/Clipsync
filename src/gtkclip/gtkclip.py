@@ -20,7 +20,7 @@ class GTKClipSync:
             self.last_text = text
             self.send(text)
 
-    def get_data(self, p1=None, p2=None):
+    def get_data(self, fd, cb_condition):
         data = self.socket.recv(1024).split(" ")
         length = int(data[1])
         data = " ".join(data[2:])
@@ -30,6 +30,7 @@ class GTKClipSync:
         if self.last_text != text:
             self.last_text = text
             self.clip.set_text(text, len(text))
+        return True
 
     def clip_init(self):
         self.socket.send("GET\n")
