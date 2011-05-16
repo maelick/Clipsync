@@ -11,7 +11,7 @@ def send(port, data):
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         try:
-            send(int(sys.argv[1]), sys.stdin.read())
+            send(int(sys.argv[1]), sys.stdin.read()[:-1])
         except KeyboardInterrupt:
             sys.exit(0)
         except:
