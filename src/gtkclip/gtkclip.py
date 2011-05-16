@@ -20,7 +20,7 @@ class GTKClipSync:
             self.last_text = text
             self.send(text)
 
-    def get_data(self, fd, cb_condition):
+    def get_data(self, fd=None, cb_condition=None):
         data = self.socket.recv(1024).split(" ")
         length = int(data[1])
         data = " ".join(data[2:])
