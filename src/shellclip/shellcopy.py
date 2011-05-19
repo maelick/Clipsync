@@ -3,6 +3,9 @@
 import socket, sys
 
 def send(port, data):
+    """
+    Sends some data to a localhost port.
+    """
     s = socket.socket()
     s.connect(("localhost", port))
     s.send("DATA {0} {1}\n".format(len(data), data))

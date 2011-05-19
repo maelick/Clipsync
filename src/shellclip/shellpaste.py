@@ -2,6 +2,9 @@
 import socket, sys
 
 def get(port):
+    """
+    Returns some data from a localhost port.
+    """
     s = socket.socket()
     s.connect(("localhost", port))
     s.send("GET\n")
