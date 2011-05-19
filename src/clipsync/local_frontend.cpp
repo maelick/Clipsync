@@ -103,18 +103,12 @@ void LocalHandler::close()
 }
 
 int getInt(string s);
-// {
-//     istringstream iss(s);
-//     int n;
-//     iss >> n;
-//     return n;
-// }
 
 void LocalHandler::treatMsg(string msg)
 {
     RegularExpression getMsg("^GET.*",
                               RegularExpression::RE_DOTALL);
-    RegularExpression dataMsg("^DATA ([0-9]+) (.*)",
+    RegularExpression dataMsg("^DATA ([0-9]+) ([0-9]+) (.*)",
                               RegularExpression::RE_DOTALL);
 
     vector<string> v;
@@ -124,7 +118,7 @@ void LocalHandler::treatMsg(string msg)
         this->sendClipboard();
     } else if(dataMsg.match(msg)) {
         dataMsg.split(msg, v);
-        this->treatData(getInt(v[1]), v[2]);
+        this->treatData(getInt(v[1]), getInt(v[2]), v[3]);
     } else if(this->verbose) {
         cout << "Unknown message received from local client"
              << " on address " << this->sock.peerAddress().toString()
@@ -132,10 +126,17 @@ void LocalHandler::treatMsg(string msg)
     }
 }
 
-void LocalHandler::treatData(int length, string data)
+void LocalHandler::treatData(int type, int length, string data)
 {
     ostringstream buf;
     buf << data;
+
+    if(type != 0) {
+        if(this->verbose) {
+            cout << "Unable to treat datatype " << type << endl;
+        }
+        return;
+    }
 
     while(buf.str().size() < length) {
         char buffer[1024];
@@ -160,7 +161,7 @@ void LocalHandler::sendClipboard()
 void LocalHandler::sendClipboard(string clipboard)
 {
     ostringstream oss;
-    oss << "DATA " << clipboard.size()
+    oss << "DATA 0 " << clipboard.size()
         << " " << clipboard << endl;
     this->sendMsg(oss.str());
 }

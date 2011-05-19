@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Clipsync, clipboard synchronizer
 # Copyright (C) 2011 Maëlick Claes (himself [at] maelick [dot] net)
 
@@ -56,8 +57,12 @@ class GTKClipSync:
         object.
         """
         data = self.socket.recv(1024).split(" ")
-        length = int(data[1])
-        data = " ".join(data[2:])
+        datatype = int(data[1])
+        if datatype != 0:
+            print "Unable to use datatype {0}".format(datatype)
+            return True
+        length = int(data[2])
+        data = " ".join(data[3:])
         while(len(data) < length):
             data += self.socket.recv(1024)
         text = data[:length]
@@ -78,7 +83,7 @@ class GTKClipSync:
         """
         Sends some data to Clipsync.
         """
-        self.socket.send("DATA {0} {1}\n".format(len(data), data))
+        self.socket.send("DATA 0 {0} {1}\n".format(len(data), data))
 
     def fetch_clipboard(self):
         """
@@ -94,4 +99,4 @@ if __name__ == '__main__':
         gtk.main()
     else:
         sys.stderr.write("Please specify as argument the port on which to " +
-                         "send the clipbopard.")
+                         "send the clipbopard.\n")

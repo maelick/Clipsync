@@ -104,7 +104,7 @@ private:
      * Treats a DATA message and gets more bytes from the socket if length
      * is lesser than the length of the already sent datas.
      */
-    void treatData(int length, std::string data);
+    void treatData(int type, int length, std::string data);
 
     /*!
      * Treat a OK message, i.e. reset the timer.

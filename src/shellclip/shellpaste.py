@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Clipsync, clipboard synchronizer
 # Copyright (C) 2011 Maëlick Claes (himself [at] maelick [dot] net)
 
@@ -14,6 +15,7 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import socket, sys
 
 def get(port):
@@ -24,8 +26,12 @@ def get(port):
     s.connect(("localhost", port))
     s.send("GET\n")
     data = s.recv(1024).split(" ")
-    length = int(data[1])
-    data = " ".join(data[2:])
+    datatype = int(data[1])
+    if datatype != 0:
+        print "Unable to use datatype {0}".format(datatype)
+        return
+    length = int(data[2])
+    data = " ".join(data[3:])
     while(len(data) < length):
         data += s.recv(1024)
     return data[:length]
@@ -34,7 +40,9 @@ def get(port):
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         try:
-            print get(int(sys.argv[1]))
+            data = get(int(sys.argv[1]))
+            if data is not None:
+                print data
         except KeyboardInterrupt:
             sys.exit(0)
         except:

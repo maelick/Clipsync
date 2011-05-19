@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Clipsync, clipboard synchronizer
 # Copyright (C) 2011 Maëlick Claes (himself [at] maelick [dot] net)
 
@@ -23,7 +24,7 @@ def send(port, data):
     """
     s = socket.socket()
     s.connect(("localhost", port))
-    s.send("DATA {0} {1}\n".format(len(data), data))
+    s.send("DATA 0 {0} {1}\n".format(len(data), data))
     s.close()
 
 if __name__ == "__main__":

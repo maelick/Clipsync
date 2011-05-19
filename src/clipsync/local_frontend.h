@@ -85,12 +85,6 @@ public:
      * Sends the content of the clipboard to the local client when received
      * from another peer. Called in ClipboardManager.
      */
-    void sendClipboard();
-
-    /*!
-     * Sends the content of the clipboard to the local client when received
-     * from another peer. Called in ClipboardManager.
-     */
     void sendClipboard(std::string clipboard);
 
 private:
@@ -110,9 +104,15 @@ private:
     void treatMsg(std::string msg);
 
     /*!
-     * Treats the data (clipboard) received from the
+     * Treats the data (clipboard) received from the local client.
      */
-    void treatData(int length, std::string data);
+    void treatData(int type, int length, std::string data);
+
+    /*!
+     * Sends the content of the clipboard to the local client when requested
+     * by the local client.
+     */
+    void sendClipboard();
 
     Config *conf; //!< Config object used by Clipsync.
     ClipboardManager *manager; //!< ClipboardManager of Clipsync.

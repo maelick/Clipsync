@@ -66,7 +66,7 @@ void PeerHandler::run()
 
 void PeerHandler::sendMsg(string msg)
 {
-    if(this->verbose) {
+    if(this->verbose) { // && msg[0] != 'O' && msg[1] != 'K') {
         cout << "Message: " << msg << " sent to peer " << this->peerName
              << " on address " << this->sock.peerAddress().toString()
              << endl;
@@ -85,9 +85,9 @@ void PeerHandler::sendJoin()
     ostringstream oss;
     oss << "JOIN " << this->conf->getPeerName()
         << " " << this->challenge << endl;
-    this->sendMsg(oss.str());
     this->t1.start(TimerCallback<PeerHandler>(*this, &PeerHandler::onTimer1),
                   *this->pool);
+    this->sendMsg(oss.str());
 }
 
 void PeerHandler::sendKo(int error)
@@ -138,7 +138,7 @@ void PeerHandler::treatMsg(string msg)
                             RegularExpression::RE_DOTALL);
     RegularExpression koMsg("^KO ([0-9]+).*",
                             RegularExpression::RE_DOTALL);
-    RegularExpression dataMsg("^DATA ([0-9]+) (.*)",
+    RegularExpression dataMsg("^DATA ([0-9]+) ([0-9])+ (.*)",
                               RegularExpression::RE_DOTALL);
 
     vector<string> v;
@@ -156,18 +156,26 @@ void PeerHandler::treatMsg(string msg)
         this->treatKo(getInt(v[1]));
     } else if(dataMsg.match(msg) && this->acceptSent && this->acceptVerified) {
         dataMsg.split(msg, v);
-        this->treatData(getInt(v[1]), v[2]);
+        this->treatData(getInt(v[1]), getInt(v[2]), v[3]);
     } else if(this->verbose) {
         cout << "Unknown message received from peer " << this->peerName
              << " on address " << this->sock.peerAddress().toString()
-             << endl;
+             << endl << msg << endl;;
     }
 }
 
-void PeerHandler::treatData(int length, string data)
+void PeerHandler::treatData(int type, int length, string data)
 {
     ostringstream buf;
     buf << data;
+
+    if(type != 0) {
+        if(this->verbose) {
+            cout << "Unable to treat datatype " << type << endl;
+        }
+        this->sendKo(3);
+        return;
+    }
 
     while(buf.str().size() < length) {
         char buffer[1024];
@@ -187,7 +195,7 @@ void PeerHandler::treatData(int length, string data)
 void PeerHandler::sendData(string data)
 {
     ostringstream oss;
-    oss << "DATA " << data.size()
+    oss << "DATA 0 " << data.size()
         << " " << data << endl;
     this->sendMsg(oss.str());
 }
@@ -208,6 +216,12 @@ void PeerHandler::treatKo(int error)
         break;
     case 2: // Invalid accept
         this->close();
+        break;
+    case 3: // Unsupported type
+        if(this->verbose) {
+            cout << "Peer " << this->peerName << " cannot handle datatype."
+                 << endl;
+        }
         break;
     }
 }
