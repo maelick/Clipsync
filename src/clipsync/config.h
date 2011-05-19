@@ -1,3 +1,21 @@
+/*
+  Clipsync, clipboard synchronizer
+  Copyright (C) 2011 Maëlick Claes (himself [at] maelick [dot] net)
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef DEF_CONFIG_H
 #define DEF_CONFIG_H
 
@@ -12,33 +30,114 @@ using Poco::Net::NetworkInterface;
 using Poco::Net::SocketAddress;
 using Poco::Random;
 
+/*!
+ * Config is a class used to encapsulate the configuration of Clipsync.
+ * It reads a XML file and give a set of methods to get different parameters
+ * needed by the software such as network configuration informations,
+ * timers delays/intervals, verbose mode,...
+ */
 class Config
 {
 public:
+    /*!
+     * Initializes the Config with a XML file name.
+     */
     Config(std::string &confFile);
+
+    /*!
+     * Returns the address to use to listen for incoming TCP connections.
+     */
     SocketAddress getAddress();
+
+    /*!
+     * Returns the broadcast address to use.
+     */
     SocketAddress getBroadcastAddress();
+
+    /*!
+     * Returns the interval to use for sending broadcast messages.
+     */
     int getBcastInterval();
+
+    /*!
+     * Returns the name of this peer.
+     */
     std::string getPeerName();
+
+    /*!
+     * Returns the group to which this peer belongs to.
+     */
     std::string getGroup();
+
+    /*!
+     * Returns the delay to use for sending the first keep alive.
+     */
     int getKeepaliveDelay();
+
+    /*!
+     * Returns the interval to use for sending keep alives.
+     */
     int getKeepaliveInterval();
+
+    /*!
+     * Returns true if the ClipboardManager needs to be set to verbose mode.
+     */
     bool getVerboseNet();
+
+    /*!
+     * Returns true if the Broadcaster needs to be set to verbose mode.
+     */
     bool getVerboseBcast();
+
+    /*!
+     * Returns true if the PeerHandler needs to be set to verbose mode.
+     */
     bool getVerbosePeer();
-    SocketAddress getLocalAddress();
+
+    /*!
+     * Returns true if the LocalHandler needs to be set to verbose mode.
+     */
     bool getVerboseLocal();
+
+    /*!
+     * Returns the address to listen on.
+     */
+    SocketAddress getLocalAddress();
+
+    /*!
+     * Returns a pseudo-random integer to be used as a challenge for peer
+     * authentification.
+     */
     int getChallenge();
 
 private:
+    /*!
+     * Returns the value of a integer property.
+     */
     int getInt(std::string property);
+
+    /*!
+     * Returns the value of a boolean property.
+     */
     bool getBool(std::string property);
+
+    /*!
+     * Returns the value of a string property.
+     */
     std::string getString(std::string property);
+
+    /*!
+     * Returns the interface to use.
+     */
     NetworkInterface getInterface();
+
+    /*
+     * Initializes the config file if not set correctly.
+     */
     void initConfigFile(std::string &confFile);
 
-    Poco::AutoPtr<XMLConfiguration> conf;
-    Random gen;
+    Poco::AutoPtr<XMLConfiguration> conf; //!< Pointer referencing the file
+    Random gen; //!< Random number generator
 };
 
 #endif
