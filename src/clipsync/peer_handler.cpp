@@ -49,6 +49,8 @@ PeerHandler::PeerHandler(Config *conf, Poco::ThreadPool *pool,
 
 void PeerHandler::run()
 {
+    this->acceptSent = false;
+    this->acceptVerified = false;
     this->isRunning = true;
     this->sendJoin();
     while(this->isRunning) {
@@ -102,10 +104,10 @@ void PeerHandler::close()
         cout << "Closing connection with " << this->peerName << " on address "
              << this->sock.peerAddress().toString();
     }
+    this->manager->removePeer(this, this->peerName);
     this->isRunning = false;
     this->t1.stop();
     this->t2.stop();
-    this->manager->removePeer(this, this->peerName);
 }
 
 string PeerHandler::getInitiatorName()

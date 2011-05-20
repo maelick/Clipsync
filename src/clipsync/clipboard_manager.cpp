@@ -110,7 +110,7 @@ bool ClipboardManager::addPeer(PeerHandler *handler, string &peerName)
 {
     this->peerMutex.lock();
     bool result = true;
-    if(this->peers.count(peerName)) {
+    if(this->peers.count(peerName) > 0) {
         if(handler->compare(this->peers[peerName])) {
             this->peers[peerName]->sendClose(0);
             this->peers[peerName] = handler;
