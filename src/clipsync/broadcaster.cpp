@@ -54,13 +54,13 @@ void Broadcaster::run()
     while(true) {
         SocketAddress src;
         char buf[1024];
-        int recv = this->s1.receiveFrom(buf, sizeof(buf), src);
+        int n = this->s1.receiveFrom(buf, sizeof(buf), src);
 
         if(src.toString() != this->srcAddr.toString()) {
             if(this->verbose) {
                 cout << src.toString() << ": " << buf << endl;
             }
-            this->treatMsg(src, string(buf, recv));
+            this->treatMsg(src, string(buf, n));
         }
     }
 }

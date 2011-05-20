@@ -74,8 +74,7 @@ void LocalHandler::run()
         char buffer[1024];
         int n = this->sock.receiveBytes(buffer, sizeof(buffer));
         if(n > 0) {
-            string s(buffer);
-            this->treatMsg(s);
+            this->treatMsg(string(buffer, n));
         } else {
             this->isRunning = false;
             this->close();
