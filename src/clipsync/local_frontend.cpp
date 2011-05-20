@@ -84,10 +84,6 @@ void LocalHandler::run()
 
 void LocalHandler::sendMsg(string msg)
 {
-    if(this->verbose) {
-        cout << "Message: " << msg << " sent to local client on address "
-             << this->sock.peerAddress().toString() << endl;
-    }
     this->sock.sendBytes(msg.c_str(), msg.size());
 }
 

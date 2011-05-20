@@ -67,11 +67,6 @@ void PeerHandler::run()
 
 void PeerHandler::sendMsg(string msg)
 {
-    if(this->verbose) { // && msg[0] != 'O' && msg[1] != 'K') {
-        cout << "Message: " << msg << " sent to peer " << this->peerName
-             << " on address " << this->sock.peerAddress().toString()
-             << endl;
-    }
     this->sock.sendBytes(msg.c_str(), msg.size());
 }
 
@@ -210,12 +205,25 @@ void PeerHandler::treatKo(int error)
 {
     switch(error){
     case 0: // Close
-        this->close();
+        if(this->verbose) {
+            cout << "Peer " << this->peerName << " closed the connection."
+                 << endl;
+        }
         break;
+        this->close();
     case 1: // Timeout
+        if(this->verbose) {
+            cout << "Peer " << this->peerName << " closed the connection "
+                 << "due to a timeout." << endl;;
+        }
+        break;
         this->close();
         break;
     case 2: // Invalid accept
+        if(this->verbose) {
+            cout << "Peer " << this->peerName << " closed the connection "
+                 << "due to an invalid accept." << endl;;
+        }
         this->close();
         break;
     case 3: // Unsupported type
@@ -230,6 +238,9 @@ void PeerHandler::treatKo(int error)
 void PeerHandler::addPeer()
 {
     if(this->acceptSent && this->acceptVerified) {
+        if(this->verbose) {
+            cout << "Peer " << this->peerName << " verified." << endl;
+        }
         this->manager->addPeer(this, this->peerName);
     }
 }
@@ -237,16 +248,25 @@ void PeerHandler::addPeer()
 void PeerHandler::verifyAccept(int nbr)
 {
     if(nbr == this->challenge + 1) {
+        if(this->verbose) {
+            cout << "Accept from peer " << this->peerName << " verified"
+                 << endl;
+        }
         this->t1.restart();
         this->acceptVerified = true;
         this->addPeer();
     } else {
+        if(this->verbose) {
+            cout << "Accept from peer " << this->peerName << " not verified"
+                 << endl;
+        }
         this->sendClose(2);
     }
 }
 
 void PeerHandler::treatJoin(string peerName, int nbr)
 {
+    cout << "Accept sent to peer " << this->peerName << endl;
     this->peerName = peerName;
     ostringstream oss;
     oss << "ACCEPT " << nbr + 1 << endl;
@@ -259,6 +279,7 @@ void PeerHandler::treatJoin(string peerName, int nbr)
 
 void PeerHandler::onTimer1(Poco::Timer &timer)
 {
+    cout << "Timeout for peer " << this->peerName << endl;
     this->t1.stop();
     this->sendClose(1);
 }

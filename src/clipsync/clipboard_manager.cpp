@@ -135,6 +135,9 @@ string ClipboardManager::getClipboard()
 void ClipboardManager::syncClipboard(string data)
 {
     this->clipMutex.lock();
+    if(this->verbose) {
+        cout << "Clipboard modified from distant peer:" << data << endl;
+    }
     this->clipboard = data;
     for(vector<LocalHandler*>::iterator it = this->localHandlers.begin();
         it < this->localHandlers.end(); it++) {
@@ -146,6 +149,9 @@ void ClipboardManager::syncClipboard(string data)
 void ClipboardManager::setClipboard(LocalHandler *handler, string data)
 {
     this->clipMutex.lock();
+    if(this->verbose) {
+        cout << "Clipboard modified from local: " << data << endl;
+    }
     this->clipboard = data;
     for(map<string,PeerHandler*>::iterator it = this->peers.begin();
         it != this->peers.end(); it++) {

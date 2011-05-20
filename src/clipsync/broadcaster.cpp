@@ -47,7 +47,7 @@ void Broadcaster::start()
 void Broadcaster::run()
 {
     if(this->verbose) {
-        cout << "Listening for broadcast messages on address "
+        cout << "Listening for broadcast messages on "
              << this->bcastAddr.toString() << endl;
     }
 
@@ -57,9 +57,6 @@ void Broadcaster::run()
         int n = this->s1.receiveFrom(buf, sizeof(buf), src);
 
         if(src.toString() != this->srcAddr.toString()) {
-            if(this->verbose) {
-                cout << src.toString() << ": " << buf << endl;
-            }
             this->treatMsg(src, string(buf, n));
         }
     }
@@ -81,9 +78,8 @@ void Broadcaster::treatMsg(SocketAddress &src, string msg)
 void Broadcaster::onTimer(Poco::Timer &timer)
 {
     if(this->verbose) {
-        cout << "Sending broadcast msg to address "
-             << this->bcastAddr.toString() << " from address "
-             << this->srcAddr.toString() << endl;
+        cout << "Sending broadcast msg from " << this->srcAddr.toString()
+             << endl;
     }
 
     std::string msg =
