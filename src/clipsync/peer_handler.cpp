@@ -59,10 +59,10 @@ void PeerHandler::run()
         if(n > 0) {
             this->treatMsg(string(buffer, n));
         } else {
-            this->isRunning = false;
             this->close();
         }
     }
+    delete this;
 }
 
 void PeerHandler::sendMsg(string msg)
@@ -104,10 +104,10 @@ void PeerHandler::close()
         cout << "Closing connection with " << this->peerName << " on address "
              << this->sock.peerAddress().toString();
     }
-    this->manager->removePeer(this, this->peerName);
     this->isRunning = false;
     this->t1.stop();
     this->t2.stop();
+    this->manager->removePeer(this, this->peerName);
 }
 
 string PeerHandler::getInitiatorName()

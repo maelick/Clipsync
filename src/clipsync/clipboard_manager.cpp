@@ -103,7 +103,6 @@ void ClipboardManager::removePeer(PeerHandler *handler, string &peerName)
         this->peers.erase(this->peers.find(peerName));
     }
     this->peerMutex.unlock();
-    delete handler;
 }
 
 bool ClipboardManager::addPeer(PeerHandler *handler, string &peerName)
