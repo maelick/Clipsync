@@ -138,7 +138,7 @@ void PeerHandler::treatMsg(string msg)
                             RegularExpression::RE_DOTALL);
     RegularExpression koMsg("^KO ([0-9]+).*",
                             RegularExpression::RE_DOTALL);
-    RegularExpression dataMsg("^DATA ([0-9]+) ([0-9])+ (.*)",
+    RegularExpression dataMsg("^DATA ([0-9]+) ([0-9]+) (.*)",
                               RegularExpression::RE_DOTALL);
 
     vector<string> v;
