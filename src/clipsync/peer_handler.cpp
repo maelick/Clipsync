@@ -97,7 +97,7 @@ void PeerHandler::close()
 {
     if(this->verbose) {
         cout << "Closing connection with " << this->peerName << " on address "
-             << this->sock.peerAddress().toString();
+             << this->sock.peerAddress().toString() << endl;
     }
     this->isRunning = false;
     this->t1.stop();
