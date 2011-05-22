@@ -34,11 +34,10 @@ class GTKClipSync:
         """
         self.clip = gtk.clipboard_get(gtk.gdk.SELECTION_CLIPBOARD)
         self.last_text = ""
-        self.socket = socket.socket()
-        self.socket.connect(("localhost", port))
+        self.port = port
+        self.try_connect()
         self.clip_init()
         gobject.timeout_add(500, self.fetch_clipboard)
-        gobject.io_add_watch(self.socket, gobject.IO_IN, self.get_data)
 
     def clip_text_recv(self, clipboard, text, data):
         """
@@ -50,21 +49,45 @@ class GTKClipSync:
             self.last_text = text
             self.send(text)
 
+    def try_connect(self):
+        """
+        If GTKClipSync is disconnected from the peer, this function will be
+        called in a timer until a reconnection is successful
+        """
+        print "Trying to connect to peer."
+        try:
+            self.socket = socket.socket()
+            self.socket.connect(("localhost", self.port))
+            gobject.io_add_watch(self.socket, gobject.IO_IN, self.get_data)
+            print "Connection to peer successful."
+            return False
+        except socket.error:
+            return True
+
     def get_data(self, fd=None, cb_condition=None):
         """
         Gets some data from Clipsync. This method is called by GTK
         at the end of the timeout defined at the creation of the GTKClipSync
         object.
         """
-        data = self.socket.recv(1024).split(" ")
+        buf = self.socket.recv(1024)
+        if len(buf) == 0:
+            gobject.timeout_add(500, self.try_connect)
+            return False
+        data = buf.split(" ")
         datatype = int(data[1])
         if datatype != 0:
             print "Unable to use datatype {0}".format(datatype)
-            return True
+            return False
         length = int(data[2])
+
         data = " ".join(data[3:])
         while(len(data) < length):
-            data += self.socket.recv(1024)
+            buf = self.socket.recv(1024)
+            if len(buf) == 0:
+                gobject.timeout_add(500, self.try_connect)
+                return True
+            data += buf
         text = data[:length]
         if self.last_text != text:
             self.last_text = text
