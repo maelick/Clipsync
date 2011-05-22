@@ -177,8 +177,7 @@ void PeerHandler::treatData(int type, int length, string data)
         char buffer[1024];
         int n = this->sock.receiveBytes(buffer, sizeof(buffer));
         if(n > 0) {
-            data = buffer;
-            buf << data;
+            buf << string(buffer, n);
         } else {
             this->isRunning = false;
             this->close();
@@ -280,8 +279,8 @@ void PeerHandler::treatJoin(string peerName, int nbr)
 void PeerHandler::onTimer1(Poco::Timer &timer)
 {
     cout << "Timeout for peer " << this->peerName << endl;
-    this->t1.stop();
     this->sendClose(1);
+    this->t1.stop();
 }
 
 void PeerHandler::onTimer2(Poco::Timer &timer)
