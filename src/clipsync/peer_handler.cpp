@@ -100,8 +100,8 @@ void PeerHandler::close()
              << this->sock.peerAddress().toString() << endl;
     }
     this->isRunning = false;
-    this->t1.stop();
-    this->t2.stop();
+    this->t1.restart(0);
+    this->t2.restart(0);
     this->manager->removePeer(this, this->peerName);
 }
 
@@ -215,7 +215,6 @@ void PeerHandler::treatKo(int error)
             cout << "Peer " << this->peerName << " closed the connection "
                  << "due to a timeout." << endl;;
         }
-        break;
         this->close();
         break;
     case 2: // Invalid accept
@@ -280,7 +279,7 @@ void PeerHandler::onTimer1(Poco::Timer &timer)
 {
     cout << "Timeout for peer " << this->peerName << endl;
     this->sendClose(1);
-    this->t1.stop();
+    this->t1.restart(0);
 }
 
 void PeerHandler::onTimer2(Poco::Timer &timer)
