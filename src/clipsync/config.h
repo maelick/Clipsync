@@ -19,12 +19,16 @@
 #ifndef DEF_CONFIG_H
 #define DEF_CONFIG_H
 
+#include <Poco/Crypto/Cipher.h>
+#include <Poco/Crypto/CipherKey.h>
 #include <Poco/Util/XMLConfiguration.h>
 #include <Poco/Net/NetworkInterface.h>
 #include <Poco/Net/SocketAddress.h>
 #include <Poco/AutoPtr.h>
 #include <Poco/Random.h>
 
+using Poco::Crypto::Cipher;
+using Poco::Crypto::CipherKey;
 using Poco::Util::XMLConfiguration;
 using Poco::Net::NetworkInterface;
 using Poco::Net::SocketAddress;
@@ -43,6 +47,11 @@ public:
      * Initializes the Config with a XML file name.
      */
     Config(std::string &confFile);
+
+    /*!
+     * Destructs the Config.
+     */
+    ~Config();
 
     /*!
      * Returns the address to use to listen for incoming TCP connections.
@@ -110,6 +119,16 @@ public:
      */
     int getChallenge();
 
+    /*!
+     * Encrypts datas using the Config's key and salt.
+     */
+    std::string encrypt(std::string s);
+
+    /*!
+     * Decrypts datas using the Config's key and salt.
+     */
+    std::string decrypt(std::string s);
+
 private:
     /*!
      * Returns the value of a integer property.
@@ -131,13 +150,23 @@ private:
      */
     NetworkInterface getInterface();
 
+    /*!
+     * Returns a random string which can be used as a random salt
+     * or passphrase.
+     */
+    std::string getRandomString();
+
     /*
      * Initializes the config file if not set correctly.
      */
     void initConfigFile(std::string &confFile);
 
-    Poco::AutoPtr<XMLConfiguration> conf; //!< Pointer referencing the file
-    Random gen; //!< Random number generator
+    Poco::AutoPtr<XMLConfiguration> conf; //!< Pointer referencing the file.
+    Random gen; //!< Random number generator.
+    std::string passphrase; //!< Passphrase used to generate encryption key.
+    std::string salt; //!< Salt used to generate encryption key.
+    CipherKey *cipherKey; //!< Key used for encrypting/decrypting datas.
+    Cipher *cipher; //!< Cipher used to crypt datas.
 };
 
 #endif

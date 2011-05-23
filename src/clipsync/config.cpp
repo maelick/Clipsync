@@ -18,6 +18,9 @@
 
 #include "config.h"
 
+#include <Poco/Crypto/CipherFactory.h>
+
+using Poco::Crypto::CipherFactory;
 using namespace std;
 
 const string DEFAULT_INTERFACE = "eth0";
@@ -37,8 +40,18 @@ Config::Config(string &confFile):
     conf(new XMLConfiguration(confFile)),
     gen()
 {
-    this->initConfigFile(confFile);
     this->gen.seed();
+    this->initConfigFile(confFile);
+    CipherFactory &cf = CipherFactory::defaultFactory();
+    this->cipherKey =  new CipherKey("aes-256-cbc",
+                                     this->passphrase, this->salt);
+    this->cipher = cf.createCipher(*this->cipherKey);
+}
+
+Config::~Config()
+{
+    delete this->cipher;
+    delete this->cipherKey;
 }
 
 string Config::getString(string property)
@@ -130,6 +143,26 @@ int Config::getChallenge()
     return this->gen.next();
 }
 
+string Config::encrypt(string s)
+{
+    return this->cipher->encryptString(s);
+}
+
+string Config::decrypt(string s)
+{
+    return this->cipher->decryptString(s);
+}
+
+string Config::getRandomString()
+{
+    char s[16];
+    for(int i = 0; i < 16; i++) {
+        s[i] = this->gen.next() % 94 + 33;
+    }
+
+    return string(s, 16);
+}
+
 void Config::initConfigFile(string &confFile) {
     if(!this->conf->hasProperty("net_frontend.interface")) {
         this->conf->setString("net_frontend.interface", DEFAULT_INTERFACE);
@@ -154,12 +187,16 @@ void Config::initConfigFile(string &confFile) {
     if(!this->conf->hasProperty("net_frontend.group")) {
         this->conf->setString("net_frontend.group", DEFAULT_GROUP);
     }
-    if(!this->conf->hasProperty("net_frontend.key")) {
-        this->conf->setString("net_frontend.key", DEFAULT_KEY);
+
+    if(!this->conf->hasProperty("net_frontend.passphrase")) {
+        this->conf->setString("net_frontend.passphrase",
+                              this->getRandomString());
     }
+    this->passphrase = this->conf->getString("net_frontend.passphrase");
     if(!this->conf->hasProperty("net_frontend.salt")) {
-        this->conf->setString("net_frontend.salt", DEFAULT_SALT);
+        this->conf->setString("net_frontend.salt", this->getRandomString());
     }
+    this->salt = this->conf->getString("net_frontend.salt");
 
     if(!this->conf->hasProperty("net_frontend.keepalive_delay")) {
         this->conf->setInt("net_frontend.keepalive_delay",
