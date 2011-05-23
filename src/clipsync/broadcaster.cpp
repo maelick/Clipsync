@@ -57,7 +57,7 @@ void Broadcaster::run()
         int n = this->s1.receiveFrom(buf, sizeof(buf), src);
 
         if(src.toString() != this->srcAddr.toString()) {
-            this->treatMsg(src, string(buf, n));
+            this->treatMsg(src, this->conf->decrypt(string(buf, n)));
         }
     }
 }
@@ -82,8 +82,9 @@ void Broadcaster::onTimer(Poco::Timer &timer)
              << endl;
     }
 
-    std::string msg =
+    string msg =
         "JOIN " + this->conf->getPeerName() +
         " " + this->conf->getGroup();
+    msg = this->conf->encrypt(msg);
     this->s2.sendTo(msg.data(), msg.size(), bcastAddr);
 }
