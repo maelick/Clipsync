@@ -3,8 +3,10 @@
 Dans le chapitre précédent, les différentes solutions existantes pour faire
 du CCMP ont été analysées. La solution jugée la plus efficace
 est Remote Clip, celle-ci proposant une architecture P2P adéquate et un
-niveau de sécurité correct. Pour ces raisons, les idées mises en avant par
-Remote Clip seront réutilisées.
+niveau de sécurité correct. Pour ces raisons, certaines idées mises en avant
+par Remote Clip seront réutilisées. De même des messages seront envoyés en
+broadcast afin d'auto-configurer le réseau comme fait dans The Network
+Clipboard.
 
 \section{Principes d'une architecture P2P}\label{sec:p2p}
 Avant de décrire l'architecture qui sera utilisée, il est préférable
@@ -46,10 +48,13 @@ Les premiers ont une topologie contrôlée de manière précise permettant
 de placer chaque donnée à un endroit précis et d'effectuer des recherches
 efficaces. Le réseau ici étant censé être de taille relativement petite
 et le contenu changeant très rapidement, il n'est pas nécessaire de structurer
-le réseau, ceci risquant de créer un overhead important et non nécessaire en
-complexité. En effet les réseaux non structurés utilisent souvent le
-mécanisme de flooding plus simple à comprendre et à mettre en oeuvre qu'une
-table de hashage distribuée.
+le réseau. En effet, le fait de structurer le réseau, en utilisant par exemple
+une table de hashage distribuée, a comme intérêt d'avoir une complexité
+algorithmique sous-linéaire en fonction du nombre de pairs présent dans
+le réseau. Ici la taille du réseau étant fortement réduite, cette
+complexité a peu d'impact sur les performances du logiciel. Le fait de ne
+pas utiliser une table de hashage distribuée permet donc d'avoir un protocole
+plus simple sans perte de performances.
 
 \begin{figure}[!h]
   \centering

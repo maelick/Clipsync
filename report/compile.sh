@@ -9,8 +9,8 @@ convert img/p2pclient_connections.png p2pclient_connections.eps
 convert img/p2pclient_peerhandler1.png p2pclient_peerhandler1.eps
 convert img/p2pclient_peerhandler2.png p2pclient_peerhandler2.eps
 latex report.tex
-#bibtex report.aux
-#latex report.tex
+bibtex report.aux
+latex report.tex
 latex report.tex
 dvips report.dvi
 ps2pdf report.ps

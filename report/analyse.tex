@@ -19,11 +19,11 @@ comme l'échange d'e-mails ou le partage de fichiers.
 
 \section{Solutions lourdes}
 Les solutions étudiées dans cette section seront d'abord l'échange
-d'e-mails, l'utilisation d'un serveur \emph{FTP} (File Transfer Protocol)
-et le partage de fichiers.
+d'e-mails, l'utilisation d'un serveur \emph{FTP} (File Transfer Protocol),
+le partage de fichiers et les outils de travail collaboratif.
 Les autres solutions étudiées seront \emph{Remote Desktop Service},
-\emph{VNC}, \emph{Citrix XenApp} et
-la technologie \emph{NX}. La comparaison de ces solutions est résumée
+\emph{VNC}, \emph{Citrix XenApp}, la technologie \emph{NX} et
+\emph{ClusterSSH}. La comparaison de ces solutions est résumée
 dans la table \ref{tbl:comp_lourd}.
 
 \subsection{Échange d'e-mails}
@@ -89,6 +89,19 @@ l'utilisation de \emph{Samba} \cite{samba} sera obligatoire s'il est nécessaire
 de supporter ces deux mondes. Cette solution présente aussi les mêmes
 désavantages que l'utilisation de FTP.
 
+\subsection{Outils de travail collaboratif}
+Ces outils permettent de travailler à distance sur un document de manière
+collaborative. Bien souvent ces outils s'utilisent à travers une interface
+web et permettent de voir les modifications apportées au document en temps
+réel. Ces outils peuvent dnc être utiliés comme méthode pour faire du CCMP
+en utilisant un document collaboratif comme presse-papier.
+Etherpad\cite{etherpad} est un de ces outils et à l'avantage d'être
+open-source depuis son rachat par Google.
+Cependant, aussi bien Etherpad que tout autre logiciel de ce genre, ils ne
+permettent pas de faire du CCMP avec une configuration minimale et sont
+clairement une solution lourde pour celui qui n'a pas besoin d'utiliser un
+outil de travail collaboratif.
+
 \subsection{Remote Desktop Services}
 Remote Desktop Services, autrefois \emph{Terminal Services}
 est un composant de Microsoft Windows permettant l'utilisation
@@ -141,6 +154,15 @@ de base \emph{NoMachine NX} est propriétaire mais une implémentation libre
 permet bien plus que le copier/coller et souffre donc des mêmes problèmes.
 
 \subsection{ClusterSSH}
+ClusterSSH\cite{clusterssh} est un outil permettant de gérer plusieurs
+sessions SSH dans un seul terminal. Il lance ainsi sur chaque hote la même
+commande ce qui permet par exemple de configurer plusieurs serveurs de la
+même manière. Son premier désavantage est la nécessité d'installer et de
+configurer un serveur SSH sur chaque machine. Deuxièmement il ne permet
+pas directement de faire du copier/coller, il faut pour cela passer
+par un outil tel que xclip\cite{xclip} afin d'interragir avec le presse-papier
+de X Window. Ces deux défauts impliquent que ClusterSSH est peu pratique
+afin de fournir un service de CCMP.
 
 \subsection{Comparaison}
 En résumé, toutes ces solutions lourdes présentées reposent
@@ -170,6 +192,9 @@ dans la table \ref{tbl:comp_lourd}.
     Partage de fichiers & Partage de fichiers & Client-serveur & SSH sous
     Unix & Oui grâce à Samba & Libre sous Unix, fermé sous Windows \\
     \hline
+    Etherpad & Outil de collaboration en ligne & Client-serveur &
+    HTTPS + Mot de passe & Oui & Logiciel libre \\
+    \hline
     RDS & Bureau distant & Client-serveur & Tunnel TLS possible & Windows
     mais clients Unix existants & Protocole propriétaire\\
     \hline
@@ -182,9 +207,13 @@ dans la table \ref{tbl:comp_lourd}.
     NX & Bureau distant & Client-serveur & Oui & Vise Unix &
     Im\-plé\-men\-ta\-tion libre FreeNX \\
     \hline
+    ClusterSSH & Mutli-SSH & Client-serveur & SSH & Vise Unix &
+    Logiciel libre \\
+    \hline
   \end{tabular}
   \caption{\label{tbl:comp_lourd} Comparaison des solutions lourdes}
 \end{sidewaystable}
+\clearpage
 
 \section{Solutions \emph{a priori} légères}
 Les solutions présentées dans cette section sont pour la majorité des
@@ -192,11 +221,25 @@ solutions trouvées en faisant des recherches sur Google sur base
 de mots clés français et anglais. Celles-ci ont permis de trouver des
 logiciels qui conviendraient au premier abord en fournissant un moyen
 simple de faire du copier/coller en réseau. Les logiciels présentés seront
-\emph{ClipboardMultiSharer}, \emph{Clipboard Share},
+\emph{CL1P}, \emph{ClipboardMultiSharer}, \emph{Clipboard Share},
 \emph{The Network Clipboard} et \emph{Remote Clip}.
 La comparaison de ces solutions est résumée dans la table \ref{tbl:comp_leger}.
 
 \subsection{Cl1p}
+CL1P\cite{cl1p} est un site web dont le but est de permettre de partager
+de l'information entre plusieurs ordinateurs via Internet. Celui-ci
+peut être vu comme une adaptation des logiciels de travail collaboratif au
+CCMP. Bien que s'utilisant de manière simple, il ne permet pas de faire du
+CCMP en synchronisant le presse-papier du système d'exploitation. Il est en
+effet nécessaire d'avoir un navigateur web ouvert et de copier dans une page
+web la donnée du presse-papier pour la récupérer sur une autre machine
+sur la même page web. Une autre critique importante est le manque de
+décentralisation de la solution: il est absurde d'avoir à se connecter à un
+serveur présent aux USA pour échanger de l'information entre deux
+ordinateurs qui sont dans la même pièce. Son dernier défaut majeur est de
+ne pas être basé sur un logiciel libre que tout le monde pourrait télécharger
+et installer sur son propre serveur web, ce qui aurait permis de résoudre
+en partie le problème de la centralisation.
 
 \subsection{ClipboardMultiSharer}
 ClipboardMultiSharer \cite{clipmsharer} est un logiciel écrit en \emph{Java}
@@ -256,12 +299,17 @@ de sécurité ne seront pas corrigées et que le logiciel ne sera pas amélioré
 
 \subsection{Comparaison}
 En résumé toutes les solutions présentées ont chacune des qualités et des
-défauts. ClipboardMultiSharer repose sur du partage de fichiers (et donc un
+défauts. CL1P a l'avantage d'être simple d'utilisation mais ne propose
+cependant aucune vraie syncrhonisation entre le presse-papier du sysème
+d'exploitation. De même celui-ci est centralisé et propriétaire.
+ClipboardMultiSharer repose sur du partage de fichiers (et donc un
 modèle client-serveur). Clipboard Share repose sur des technologies fermées
 et ne tourne que sous Windows. The Network Clipboard n'est pas sécurisé.
 Seul Remote Clips répond réellement aux exigences du projet même si celui-ci
-est quelque peu vieillissant. Pour cette raison c'est les concepts de ce
-dernier qui seront principalement utilisés pour développer le projet.
+est quelque peu vieillissant. Finalement, le but de ce projet étant aussi
+d'implémenter une nouvelle solution, celle qui sera décrite par la suite
+reprendra plusieurs principes de Remote Clip, mais aussi le broadcast le
+broadcast utilisé dans The Network Clipboard pour l'auto-configuration.
 Les caractéristiques de l'ensemble des logiciels sont résumées dans la
 table \ref{tbl:comp_leger}.
 
@@ -272,6 +320,9 @@ table \ref{tbl:comp_leger}.
     Solution & Service rendu & Architecture & Sécurité & In\-dé\-pen\-dance
     de la plateforme & Ouverture de la solution \\
     \hline
+    \hline
+    CL1P & CCMP Web & Client-serveur & HTTPS + Restrictions à certains
+    utilisateurs possible & Oui & Logiciel propriétaire \\
     \hline
     Clipboard\-MultiSharer & CCMP & Client-serveur & Partage de fichiers & Java
     + partage de fichiers & Logiciel libre\\
@@ -285,10 +336,7 @@ table \ref{tbl:comp_leger}.
     Remote Clip & CCMP & P2P & TLS + validation de connexion d'un pair &
     Java & Logiciel libre \\
     \hline
-    \hline
-    Solution & Service rendu & Architecture & Sécurité & In\-dé\-pen\-dance
-    de la plateforme & Ouverture de la solution \\
-    \hline
   \end{tabular}
   \caption{\label{tbl:comp_leger} Comparaison des solutions légères}
 \end{sidewaystable}
+\clearpage
