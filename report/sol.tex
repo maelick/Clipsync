@@ -1,5 +1,5 @@
 \chapter{Solution proposée}
-\renewcommand{\leftmark}{\thechapter.~~Solution}
+\renewcommand{\leftmark}{\thechapter.~~Solution proposée}
 Dans le chapitre précédent, les différentes solutions existantes pour faire
 du CCMP ont été analysées. La solution jugée la plus efficace
 est Remote Clip, celle-ci proposant une architecture P2P adéquate et un
@@ -88,14 +88,14 @@ qu'un pair a quitté celui-ci (volontairement ou pas). Des exemples
 de fonctionnement de cette architecture et du protocole qui seront mis en
 oeuvre sont montrés dans les figures \ref{fig:join} et \ref{fig:copypaste}.
 
-\subsubsection*{Gestion du presse-papier en P2P}
+\subsubsection{Gestion du presse-papier en P2P}
 Il y a principalement deux possibilités pour gérer le presse-papier
 sur le réseau. Lorsqu'un copier est effectué en local, le client P2P
 doit prévenir les autres pairs qu'il détient le presse-papier.
 La première option est d'envoyer en même temps la donnée copiée à tous les
 pairs. La deuxième est de n'envoyer cette donnée que lorsque qu'un coller
 est effectué chez un pair, celui-ci peut alors demander la donnée au pair
-détenant le presse-papier.\\\\
+détenant le presse-papier.
 La première manière de faire a les avantages et inconvénients suivants:
 \begin{itemize}
 \item Avantages:
@@ -127,37 +127,63 @@ La seconde a les avantages et inconvénients suivants:
   \end{itemize}
 \item Inconvénients:
   \begin{itemize}
-  \item Impossibilité de récupérer le presse-papier d'un pair ayant quitté
-    le réseau.
+  \item Faible tolérance aux erreurs: impossibilité de récupérer le
+    presse-papier d'un pair ayant quitté le réseau.
   \item Si plusieurs collers ont lieu les uns à la suite des autres, il faudra
     demander plusieurs fois la même donnée au pair détenant le presse-papier.\\
   \end{itemize}
 \end{itemize}
 
-Il est donc nécessaire de faire un choix entre une de ces options
-et c'est la seconde qui est choisie. C'est ainsi que fonctionne non seulement
-Remote Clip, mais aussi X Window\cite{nye1992xlib} à la différence
-que c'est une architecture client-serveur qui est utilisée. En effet, X Window
-est un serveur qui considère chaque fenêtre comme un client. Lorsque
-l'utilisateur copie un élément de cette fenêtre, elle notifie le serveur X
-qu'elle détient le presse-papier. Ensuite lorsque l'utilisateur
-veut coller le contenu du presse-papier, la fenêtre dans laquelle est
-effectuée le coller doit demander au serveur X quel client détient le
-presse-papier et ensuite s'adresser à celui-ci pour l'obtenir. L'application
-devant viser en priorité le monde Unix, c'est ce principe qui est adapté à
-une architecture sans serveur. Il faut aussi noter que sous X, il n'est pas
-possible de savoir si le presse-papier a changé: si deux copies sont
-effectuées au sein de la même application, il n'y a qu'une seule notification
-qui est faite auprès des autres fenêtres, il faudrait donc constamment
-vérifier que celui-ci a changé ou pas afin de le synchroniser sur le
-réseau.
+\subsubsection{X Window}
+Avant de choisir entre une de ces deux solutions, il est important de
+savoir ce qu'est X Window et comment ce logiciel fonctionne\cite{nye1992xlib}.
+X est un standard pour les systèmes d'exploitations basés sur Unix permettant
+d'afficher des éléments graphiques sur un écran plutôt qu'un terminal.
+Il est principalement responsable de la couche la plus basse des systèmes
+de fenêtrages de la majorité des systèmes Unix. Son fonctionnement est basé
+sur une architecture client-serveur où X Window est le logiciel serveur
+et chaque application graphique est un client. Lorsqu'un copier est réalisé au
+sein d'une application, le client (\emph{i.e.} la fenêtre) notifie le serveur X
+qu'un copier a eu lieu. le serveur retient alors que la dernière application
+à avoir copié du texte est le client en question.
 
-\subsubsection*{Rejoindre le réseau}
+Lorsqu'une deuxième
+application effectue un coller, elle demande d'abord au serveur quel client
+a fait le dernier coller. Il peut ensuite demander à ce client de délivrer
+le contenu de son presse-papier. Il faut noter que si le client responsable
+du presse-papier a disparu, \emph{i.e.} si la fenêtre a été fermée, et qu'aucun
+copier n'a été effectué depuis la fermeture du client, alors il est
+impossible de récupérer la donnée et le presse-papier est considéré comme vide.
+\footnote{Il faut cependant noter que si un logiciel d'historique de
+presse-papier est utilisé, c'est le gestionnaire de presse-papier qui est
+responsable de la donnée copiée. Il est donc normal si celle-ci est toujours
+disponible après avoir fermé la fenêtre dans laquelle la donnée a été
+initialement copiée.}
+En fin de compte, il est clair que la description du fonctionnement de X Window
+est la deuxième solution décrite précédemment.
+
+\subsubsection{Choix de solution pour la gestion et
+synchronisation du presse-papier}
+Il faut donc faire un choix entre une de ces deux solutions. Un des critères
+définit au début de ce travail étant de cibler Unix, il semble idéal de se
+baser sur X Window pour implémenter une nouvelle solution. De même, Remote
+Clip, ayant été décrit comme la meilleure solution rencontrée, fonctionne
+de la même manière. Cependant en fin compte, c'est la première solution qui
+est choisie. Celle-ci est plus intuitive et a surtout l'avantage d'être
+tolérante aux erreurs. Et même si Remote Clip a été identifiée comme
+solution idéale, un intérêt de réimplémenter une nouvelle solution est
+d'améliorer ses fonctionnalités, en améliorant ici la tolérance aux erreurs.
+Un dernier avantage qui sera discuté dans le chapitre \ref{chap:implem}
+est le fait qu'envoyer la donnée à chaque pair à chaque copier facilite
+la gestion d'historique synchornisé du presse-papier sans avoir à ajouter
+cette fonctionnalité directement dans le logiciel nouvellement produit.
+
+\subsubsection{Rejoindre le réseau}
 Outre un moyen d'authentification, il est nécessaire de définir comment
 un pair peut rejoindre le réseau afin de partager son presse-papier.
-Une première solution consiste en la connaissance, pour un pair voulant
-rejoindre le réseau, de connaître l'IP et l'identifiant d'au moins un autre
-pair déjà présent dans le réseau et connaissant les autres pairs présents
+Une première solution consiste, pour un pair voulant
+rejoindre le réseau, à connaître l'adresse IP et l'identifiant d'au moins un
+autre pair déjà présent dans le réseau et connaissant les autres pairs présents
 dans ce réseau. Il suffit alors de contacter cet autre pair et de synchroniser
 la  liste des pairs de l'ensemble du réseau. Une autre solution envisageable
 est d'utiliser un mécanisme de broadcast permettant de flooder le réseau pour
@@ -176,7 +202,7 @@ connexions sera ouverte pour chaque pair. Le nombre de connexions serait donc
 en $(O(n^2)$. Cependant le réseau P2P étant limité à quelques pairs dans le
 cas du CCMP, ceci n'est pas handicapant.
 
-\subsubsection*{Quitter le réseau}
+\subsubsection{Quitter le réseau}
 Lorsqu'un pair quitte le réseau, il doit notifier l'ensemble des autres
 pairs de son départ. Une fois ceci fait, il peut fermer chaque connexion
 ouverte avec chacun des pairs. En revanche il se peut qu'un pair quitte
@@ -196,13 +222,14 @@ Le client P2P est le \emph{front-end} avec le réseau, il est chargé
 de communiquer avec les pairs du réseau afin de les découvrir et savoir
 lequel détient le presse-papier. Le front-end avec l'utilisateur
 est en revanche le client local. Celui-ci tourne sur le même ordinateur
-que le client P2P, se charge de notifier le client P2P lorsque
-l'utilisateur copie quelque chose et le notifie lorsqu'il désire
-accéder au presse-papier. Le client P2P notifie le client local
-lorsqu'un pair du réseau détient le presse-papier c'est-à-dire lorsque ce
-pair effectue un copir.
+que le client P2P, se charge d'envoyer le contenu du presse-papier
+lors d'une copie de l'utilisateur, et lui demande le contenu du presse-papier
+lorsque que l'utilisateur effectue un coller.
+De même le client P2P envoie le contenu du presse-papier au client local si
+ce dernier a envoyé une requête pour l'obtenir ou si un autre ou un autre
+client local a changé le contenu du presse-papier.
 Un exemple d'interaction entre clients locaux et clients P2P utilisant
-le protocole qui sera mis en oeuvre est montré sur la figure \ref{fig:local}.
+le protocole mis en oeuvre est montré sur la figure \ref{fig:local}.
 
 Cependant, contrairement au client P2P, il peut y avoir plusieurs clients
 locaux tournant sur le même ordinateur. Chacun d'entre eux étant destiné
@@ -211,21 +238,15 @@ de clients différents:
 \begin{itemize}
 \item Un client tournant en tâche de fond (comme \emph{daemon}) et
   synchronisant le contenu du presse-papier de X Window.
-\item Un client gérant le copier/coller dans un terminal, composé de trois
+\item Un client gérant le copier/coller dans un terminal, composé de deux
   logiciels:
   \begin{itemize}
-  \item Un daemon gérant le presse-papier, cette fonctionnalité n'étant en
-    général pas implémentée dans un shell, seuls les émulateurs de terminaux
-    peuvent communiquer avec celui de X Window.
   \item Une commande permettant de copier une donnée à partir de l'entrée
     standard du shell.
   \item Une commande permettant de coller une donnée sur la sortie standard
     du shell.
   \end{itemize}
 \end{itemize}
-Il est à noter que dans le cas du premier client, le rôle des deux commandes
-est en fait joué par les clients X Window \emph{i.e.} les fenêtres ouvertes
-et réalisant le copier/coller.
 
 \section{Protocoles}
 Deux protocoles sont à définir afin de faire fonctionner l'application
@@ -249,108 +270,60 @@ ensuite décrite et le type de messages pouvant être reçu comme réponse est
 décrit.
 
 \subsection{Protocole P2P}
-\subsubsection*{AUTH}
-Afin de s'authentifier lors de l'ouverture d'une connexion TCP/TLS,
-un identifiant est choisi pour le pair et un mot de passe est défini dans la
-configuration du client.
-Lorsqu'un pair veut contacter pour la première fois un pair, il doit
-s'authentifier auprès de celui-ci. Pour cela il envoie un message
-d'authentification:
+\subsubsection*{JOIN}
+Un message de type JOIN sert à authentifier un pair:
 \begin{verbatim}
-AUTH <SP> <NAME> <SP> <PSWD> <LF>
+JOIN <SP> <NAME> <SP> <CHALLENGE> <LF>
 \end{verbatim}
 \begin{description}
-\item[Variable NAME:] identifiant de l'hôte à joindre.
-\item[Variable PSWD:] mot de passe.
-\item[Réponse:] si le mot de passe est correct \emph{i.e.} est le même
-  utilisé par les deux pairs, le pair contacté peut accepter la connexion
-  et répondre par un message de type OK, sinon il répond par un message de type
-  KO avec un code d'erreur 1.
+\item[Variable NAME:] identifiant du pair envoyant le message.
+\item[Variable CHALLENGE:] un nombre généré aléatoirement utilisé comme
+  challenge.
+\item[Réponse:] un message ACCEPT où le challenge est incrémenté de un.
 \end{description}
 
-\subsubsection*{OK}
-Ce type de message permet de confirmer la plupart des opérations:
+\hrulefill
+
+\subsubsection*{ACCEPT}
 \begin{verbatim}
-OK <LF>
+ACCEPT <SP> <CHALLENGE> <LF>
 \end{verbatim}
+\begin{description}
+\item[Variable CHALLENGE:] le challenge reçu dans le message JOIN
+\item[Réponse:] Si le challenge ne correspond pas (\emph{i.e.} n'a pas été
+  incrémenté de un et l'authentification a échoué), alors un KO est envoyé
+  pour fermer la connexion.
+\end{description}
+
+\hrulefill
 
 \subsubsection*{KO}
-Ce type de message permet de signaler un refus ou une erreur:
+Ce type de message permet de signaler un refus ou une erreur et de fermer
+la connexion:
 \begin{verbatim}
 KO <SP> <ERRNO> <LF>
 \end{verbatim}
 \begin{description}
-\item[Variable ERRNO: ] code d'erreur pouvant être:
+\item[Variable ERRNO:] code d'erreur pouvant être:
   \begin{description}
-  \item[0] erreur non définie/générique.
-  \item[1] échec d'authentification.
-  \item[2] pair non valide.
+  \item[0] fermeture de la connexion.
+  \item[1] fermeture due à un timeout.
+  \item[2] message ACCEPT non valide, échec de l'authentification.
+  \item[3] type de données du message DATA inconnu. Pas de fermeture de la
+    session, le contenu du presse-papier est simplement ignoré par le pair.
   \end{description}
 \end{description}
 
-\subsubsection*{JOIN}
-Un message de type JOIN permet de rejoindre le réseau:
-\begin{verbatim}
-JOIN <SP> <TYPE> <SP> <NAME1> <SP> <NAME2> <LF>
-\end{verbatim}
-\begin{description}
-\item[Variable NAME1:] identifiant du pair.
-\item[Variable NAME2:] identifiant du pair contacté.
-\item[Variable TYPE:]
-  \begin{description}
-  \item[0] signifie que le pair n'a pas encore obtenu la liste des pairs
-  \item[1] signifie que le pair a déjà la liste des pairs
-  \end{description}
-\item[Réponse:] si l'identifiant du pair contacté n'est pas le bon, la
-  réponse est un message KO avec un code d'erreur 2, si celui-ci est bon la
-  réponse est un message de type LIST si le pair a besoin de la liste des
-  pairs, sinon un message de type OK.
-\end{description}
+\hrulefill
 
-\subsubsection*{LIST}
-Un message de type LIST annonce une liste de messages de type PEER:
+\subsubsection*{OK}
+Ce type de message est envoyé à interval régulier afin de servir de mécanisme
+de keep alive.
 \begin{verbatim}
-LIST <SP> <N> <LF>
-\end{verbatim}
-\begin{description}
-\item[Variable N:] nombre de messages PEER qui suivent.
-\end{description}
-
-\subsubsection*{PEER}
-Un message de type PEER décrit ce qui identifie un pair:
-\begin{verbatim}
-PEER <SP> <NAME> <SP> <IP> <SP> <PORT> <LF>
-\end{verbatim}
-\begin{description}
-\item[Variable NAME:] identifiant du pair permettant d'effectuer un JOIN.
-\item[Variable IP:] adresse IP permettant de joindre le pair.
-\item[Variable PORT:] port sur lequel le pair écoute.
-\end{description}
-
-\subsection*{LEAVE}
-Un message de type LEAVE doit être envoyé pour quitter le réseau et ne
-nécessite aucune réponse:
-\begin{verbatim}
-LEAVE <LF>
+OK <LF>
 \end{verbatim}
 
-\subsubsection*{COPY}
-Un message de type COPY est envoyé lorsque le pair détient le presse-papier:
-\begin{verbatim}
-COPY <LF>
-\end{verbatim}
-
-\subsubsection*{PASTE}
-Un message de type PASTE est envoyé lorsqu'un pair doit obtenir le
-presse-papier:
-\begin{verbatim}
-PASTE <LF>
-\end{verbatim}
-\begin{description}
-\item[Réponse:] Un message de type DATA. Si le pair ne possède pas le
-  presse-papier un message de type PEER doit être envoyé avec les informations
-  du pair détenant le presse-papier.
-\end{description}
+\hrulefill
 
 \subsubsection*{DATA}
 Un message de type DATA permet d'envoyer le contenu du presse-papier:
@@ -363,10 +336,9 @@ DATA <SP> <TYPE> <SP> <LENGTH> <SP> <CONTENT> <LF>
   d'autres types de données. Dans ce cas il faudra préciser comment ce type
   de données est encodé.
   \begin{description}
-  \item[0] type non défini/inconnu.
-  \item[1] texte.
+  \item[0] texte.
   \end{description}
-\item[Variable LENGTH:] longueur de la donnée.
+\item[Variable LENGTH:] longueur de la donnée en bytes.
 \item[Variable CONTENT:] contenu de la donnée dont la longueur
   doit vérifier la variable LENGTH.
 \end{description}
@@ -395,23 +367,33 @@ DATA <SP> <TYPE> <SP> <LENGTH> <SP> <CONTENT> <LF>
 \end{figure}
 
 \subsection{Protocole local}
-Le protocole local utilise un sous-ensemble des messages du protocole P2P,
-celui-ci ayant seulement besoin de notifications de copier/coller et de
-s'authentifier.
-Les messages utilisés seront ceux de type AUTH, OK, KO, COPY, PASTE et DATA.
-Les messages de type AUTH, OK et KO sont toujours utilisés pour
-l'authentification.
+\subsubsection*{GET}
+Ce type de message est envoyé par le client local pour demander au client P2P
+d'envoyer le contenu du presse-papier.
+\begin{verbatim}
+GET <LF>
+\end{verbatim}
 
-La sémantique des messages de type COPY change légèrement: le client
-local envoie un tel message lorsque l'utilisateur copie une donnée dans le
-presse-papier et le client P2P envoie un COPY au client local lorsque
-c'est un autre pair (ou un autre client local) qui détient le presse-papier.
+\hrulefill
 
-Les messages de type PASTE sont quant à eux envoyés lorsque le client local
-désire faire un coller et qu'il ne détient pas le presse-papier ou bien
-lorsqu'un autre pair désire obtenir le contenu du presse-papier détenu par le
-client local. Les messages de type DATA ont toujours la même sémantique:
-servir de réponse à un message de type PASTE.
+\subsubsection*{DATA}
+Un message de type DATA permet d'envoyer le contenu du presse-papier. Un tel
+message peut aussi bien être envoyé par le client P2P que par le client local:
+\begin{verbatim}
+DATA <SP> <TYPE> <SP> <LENGTH> <SP> <CONTENT> <LF>
+\end{verbatim}
+\begin{description}
+\item[Variable TYPE:] cette variable permet de préciser le type
+  de donnée et ainsi d'étendre facilement le protocole afin de supporter
+  d'autres types de données. Dans ce cas il faudra préciser comment ce type
+  de données est encodé.
+  \begin{description}
+  \item[0] texte.
+  \end{description}
+\item[Variable LENGTH:] longueur de la donnée en bytes.
+\item[Variable CONTENT:] contenu de la donnée dont la longueur
+  doit vérifier la variable LENGTH.
+\end{description}
 
 \begin{figure}[!h]
   \centering
