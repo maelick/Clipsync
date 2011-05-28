@@ -31,8 +31,6 @@ const short DEFAULT_LOCAL_PORT = 1111;
 const int DEFAULT_BCAST_INTERVAL = 5000;
 const string DEFAULT_PEER_NAME = "unknown";
 const string DEFAULT_GROUP = "clipboard";
-const string DEFAULT_KEY = "passphrase";
-const string DEFAULT_SALT = "mysalt";
 const int DEFAULT_KEEPALIVE_DELAY = 1000;
 const int DEFAULT_KEEPALIVE_INTERVAL = 200;
 
