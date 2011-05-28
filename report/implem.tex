@@ -1,16 +1,119 @@
 \chapter{Implémentation de la solution proposée}
 \renewcommand{\leftmark}{\thechapter.~~Implémentation de la solution proposée}
-Après qu'une architecture ait été définie pour proposer une solution
-résolvant le problème du CCMP, celle-ci a été implémentée. Ce chapitre
-justifiera premièrement les choix qui ont été fait avant et pendant
-l'implémentation de la solution. Ensuite une présentation de l'utilisation
-des logiciels produits sera faite. Après des vérifications de performances
-seront effectuées sur ces logiciels et enfin les faiblesses du logiciel
-seront mises en avant afin de déterminer les éléments prioritaires
-à développer lors de l'évolution future du logiciel.
+Ce chapitre justifiera premièrement les choix qui ont été fait avant et
+pendant l'implémentationde de l'architecture baptisée \emph{Clipsync}.
+Ensuite une présentation de l'utilisation des
+logiciels produits sera faite. Après des vérifications de performances seront
+effectuées sur ces logiciels et enfin les faiblesses du logiciel seront mises
+en avant afin de déterminer les éléments prioritaires à développer lors de
+l'évolution future du logiciel.
 
 \section{Choix des outils}
+Le langage de programmation C++ a été choisi afin d'implémenter Clipsync,
+celui-ci permettant d'avoir un code compilé nativement et ainsi optimisé
+pour la machine hôte. Bien que ceci soit une source d'erreurs, il permet
+aussi de gérer la mémoire manuellement, ce qui implique un gain de
+performances. En revanche les client locaux, à savoir GTKCLip et Shellclip,
+ont eux été implémentés en Python. Ce langage de haut niveau en comparaison
+au C++ offre la possibilité d'écrire ces deux clients sous forme de scripts
+de taille réduite. La perte de performance par rapport au C++ est peu
+importante vu que ces scripts utilisent un protocole de communication simple
+et servent uniquement d'interface entre l'utilisateur et le client P2P.
+
+La librairie POCO\cite{poco} a été utilisée principalement comme bibliothèque
+pour la manipulation de sockets portables. Ceci permet d'avoir une
+compatibilité théorique avec Microsoft Windows, bien que celle-ci n'a pas
+été testée. De plus POCO offrant un grand nombre de service, la librairie
+a aussi été utilisée pour la gestion des threads et des timers, la
+configuration du logiciel grâce à un fichier XML, pour la protection de
+zones critiques avec mutex, pour la cryptographie et pourla génération de
+nombres pseudo-aléatoires.
+
+Afin d'éviter les erreurs en C++, et en particulier les fuites de mémoire,
+Valgrind\cite{valgrind} a été utilisé. Celui-ci est à la fois un debugger,
+un \emph{memory-checker} et un \emph{profiler}. Celui-ci a permis de debugger
+le programme pendant le développement et est utilisé dans la suite de ce
+chapitre afin d'analyser les performances du logiciel et pour s'assurer que
+le programme n'est pas victime de fuites de mémoires.
+Bazaar\cite{bzr} a été utilisé comme gestionnaire de versions décentralisé et
+Launchpad\cite{launchpad} a été choisi comme forge sur laquelle déposer le
+logiciel produit.
 
 \section{Utilisation des logiciels}
+Avant de pouvoir récupérer, compiler et utiliser le logiciel, il est nécessaire
+d'avoir les librairies et outils suivants:
+\begin{itemize}
+\item Bazaar: \url{http://bazaar.canonical.com/}
+\item GCC: \url{http://gcc.gnu.org/}
+\item GNU Make: \url{http://www.gnu.org/software/make/}
+\item POCO version 1.3.6 minimum: \url{http://pocoproject.org/}
+\item Python 2.6 ou 2.7: \url{http://www.python.org/}
+\item PyGTK et GTK version 2: \url{http://www.pygtk.org/}
+\item Doxygen peut être optionnellement installé pour générer la documentation
+  du projet: \url{http://www.stack.nl/~dimitri/doxygen/}
+\end{itemize}
+
+Tous ces logiciels peuvent êtres installés sous une distribution GNU/Linux
+basée sur une Debian récente grâce à la commande:
+\begin{verbatim}
+sudo apt-get install bzr gcc make libpoco-dev python-gtk2 doxygen
+\end{verbatim}
+
+Le code source peut alors être récupéré grâce à la commande:
+\begin{verbatim}
+bzr branch lp:clipsync
+\end{verbatim}
+Clipsync peut alors être compilé grâce à GNU Make dans le dossier
+\emph{src/clipsync}.
+L'exécutable produit peut alors être lancé en passant en paramètre un nom
+de fichier XML servant à configurer le logiciel. Un exemple de fichier
+est fourni avec le logiciel. Voici la liste des balises et leur description:
+\begin{itemize}
+\item \emph{net\_frontend}:
+  \begin{itemize}
+  \item \emph{interface}: interface réseau utilisée pour les communications
+    réseau
+  \item \emph{use\_ipv6}: booléen servant à indiquer l'utilisation d'IPv6.
+    Cette fonctionnalité n'est cependant pas disponible pour le moment et
+    l'option a seulement été ajoutée pour l'évolution future du loigiciel.
+  \item \emph{port}: port TCP utilisé pour écouter les connexions TCP
+    entrantes. C'est sur ce port que le pair sera contacté par les autres
+    pairs du réseau.
+  \item \emph{bcast\_port}: port UDP utilisé pour l'envoi et la réception de
+    messages broadcast.
+  \item \emph{bcast\_interval}: interval en millisecondes utilisé pour l'envoi
+    de messages broadcast.
+  \item \emph{peer\_name}: nom servant à identifier ce pair sur le réseau et
+    devant être unique pour ce pair.
+  \item \emph{group}: nom du groupe de pairs. Chaque pair du réseau devra
+    posséder le même nom de groupe dans sa configuration.
+  \item \emph{passphrase} et \emph{salt}: mot de passe et sel\footnote{Le
+      salage en cryptographie permet de renforcer la sécurité d'un algorithme
+      de chiffrement\cite{wiki:salage}} servant à générer la clé pour le
+    chiffrement par AES. Ces deux valeurs doivent être identiques sur chaque
+    pair. Il est possible de supprimer ces deux valeurs, de lancer le
+    logiciel qui va générer des valeurs aléatoires qui peuvent ensuite
+    être copiées sur les autres pairs.
+  \item \emph{keepalive\_delay}: délai en millisecondes après lequel la
+    connexion est fermée si aucun message OK n'est reçu.
+  \item \emph{keepalive\_interval}: interval en millisecondes utilisé pour
+    l'envoi de messages OK.
+  \item \emph{verbose}, \emph{verbose\_bcast}, \emph{verbose\_peer}:
+    booléens permettant d'activer ou de désactiver le mode verbeux
+    \footnote{Le mode verbeux permet d'afficher sur la sortie standard
+    des informations sur l'activité du logiciel.} de Clipsync.
+  \end{itemize}
+\item \emph{local\_frontend}:
+  \begin{itemize}
+  \item \emph{local\_port}: port TCP en local utilisé pour communiquer avec les
+    clients locaux.
+  \item \emph{verbose}: booléen activant le mode verbeux pour l'interface avec
+    les clients locaux.
+s  \end{itemize}
+\end{itemize}
+
+L'utilisation de Shellclip et GTKClip est possible en exécutant les scripts
+Python et en passant en paramètre le port TCP local permettant de contacter
+Clipsync.
 
 \section{Vérifications de performances}
