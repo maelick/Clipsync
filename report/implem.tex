@@ -58,7 +58,6 @@ basée sur une Debian récente grâce à la commande:
 \begin{verbatim}
 sudo apt-get install bzr gcc make libpoco-dev python-gtk2 doxygen
 \end{verbatim}
-
 Le code source peut alors être récupéré grâce à la commande:
 \begin{verbatim}
 bzr branch lp:clipsync
@@ -66,8 +65,8 @@ bzr branch lp:clipsync
 Clipsync peut alors être compilé grâce à GNU Make dans le dossier
 \emph{src/clipsync}.
 L'exécutable produit peut alors être lancé en passant en paramètre un nom
-de fichier XML servant à configurer le logiciel. Un exemple de fichier
-est fourni avec le logiciel. Voici la liste des balises et leur description:
+de fichier XML servant à configurer le logiciel. Voici la liste des balises
+et leur description:
 \begin{itemize}
 \item \emph{net\_frontend}:
   \begin{itemize}
@@ -109,8 +108,14 @@ est fourni avec le logiciel. Voici la liste des balises et leur description:
     clients locaux.
   \item \emph{verbose}: booléen activant le mode verbeux pour l'interface avec
     les clients locaux.
-s  \end{itemize}
+  \end{itemize}
 \end{itemize}
+
+Le script \emph{gen\_config.py} permet de générer un fichier de configuration
+en passant en argument dans l'ordre: le nom du pair, le nom du groupe de pairs,
+l'interface réseau à utiliser et optionnellement: le port, le port broadcast,
+le port loccal, la longueur du mot de passe à générer et la longueur du
+sel à générer.
 
 L'utilisation de Shellclip et GTKClip est possible en exécutant les scripts
 Python et en passant en paramètre le port TCP local permettant de contacter
