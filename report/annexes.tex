@@ -49,13 +49,23 @@ que la conception doit être simple et éviter toute complexité inutile.
 
 Celui-ci est à la base même de la philosophie Unix, en effet celle-ci prône
 l'utilisation de petits utilitaires simples ayant chacun une fonctionnalité
-bien précise. Le projet sera donc développé de manière à fournir
-une implémentation suivant cette philosophie. Plusieurs auteurs
+bien précise.
+Douglas McIlroy, inventeur du pipe UNIX, a dit\cite{quartercentury-unix}:
+\begin{quote}
+  This is the Unix philosophy: Write programs that do one thing and do
+  it well. Write programs to work together. Write programs to handle
+  text streams, because that is a universal interface.
+\end{quote}
+Le projet a donc été développé en utilisant une approche orientée
+composant\cite{wiki:poc}, en fournissant de petits
+logiciels communiquant au travers de sockets de manière textuelle.
+
+Plusieurs auteurs
 \cite{Brooks1995, Raymond2001} prônent cette philosophie sans pour autant
 y faire référence explicitement. \emph{e.g.} Brooks explique par exemple
 que le design est d'une importance capitale car il permet de comprendre
 plus facilement le code source, Raymond dit qu'il faut concevoir les logiciels
-de manière ce qu'ils suivent la philosophie d'Unix. Il dit aussi que
+de manière à ce qu'ils suivent la philosophie d'Unix. Il dit aussi que
 la perfection en conception n'est pas atteinte lorsque l'on n'a plus rien à
 ajouter mais plutôt lorsque l'on n'a plus rien à retirer.
 
@@ -63,3 +73,4 @@ Filip Hanik, un ingénieur logiciel membre de l'\emph{Apache Foundation} parle
 aussi du principe KISS et donne des conseils pour appliquer ces principes en
 Java (mais ceux-ci sont applicables dans tous les langages de programmation)
 \cite{fhanikKISS}.
+
