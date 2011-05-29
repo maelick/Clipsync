@@ -127,3 +127,36 @@ Python et en passant en paramètre le port TCP local permettant de contacter
 Clipsync.
 
 \section{Vérifications de performances}
+
+\section{Analyse des fonctionnalités présentes et
+futures}
+Le logiciel produit permet de synchroniser du texte présent dans le
+presse-papier. D'autres fonctionnalités plus avancées avaient été identifiées
+au début de ce rapport comme la gestion d'autres types de données comme
+les images ainsi que la gestion de l'historique.
+
+La première de ces deux fonctionnalités, qui peut par exemple servir à
+synchroniser des morceaux d'images entre deux éditeurs graphiques, est
+possible grâce au champ type présent dans les messages DATA. Cette intégration
+nécessite cependant des modifications du code de Clipsync, en effet aucun
+mécanisme n'a été mis en place pour stocker en mémoire un presse-papier
+différent d'une chaîne de caractères.
+
+Une autre fonctionnalité découlant du CCMP d'images est la compression du
+presse-papier. A partir du moment où des images sont transférées sur le
+réseau, la taille des données envoyées sur le réseau augmente. Il devient
+alors intéressant de compresser le flux de données afin d'économiser de la
+bande passante. Ces deux fonctionnalités seront (après la correction
+de bugs découverts) la première priorité pour l'évolution future du logiciel.
+
+En ce qui concerne la gestion de l'historique du presse-papier, cette
+fonctionnalité n'est pas prévue afin de respecter au mieux la philosophie
+UNIX et n'avoir qu'un seul outil par fonctionnalité. Ainsi Clipsync
+s'occupe de la synchronisation du presse-papier, mais n'a pas pour but de
+synchroniser l'historique. De plus il existe déjà un grand nombre d'outils
+gérant l'historique du presse-papier et ceux-ci sont théoriquement compatibles
+avec Clipsync\footnote{Des tests ont été effectuées avec XFCE-Clipman et
+confirment cette hypothèse.}. Dés lors il est possible de gérer l'historique
+du presse-papier en installant un tel outil sur chaque machine et d'utiliser
+Clipsync uniquement pour synchroniser la donnée se situant réellemet dans
+le presse-papier du système.
