@@ -46,6 +46,7 @@
 \definecolor{gris}{gray}{0.45}
 \setlength{\parindent}{1cm}
 \newcommand{\textcalli}[1]{{\small{\textbf{$\negmedspace$\calligra #1}}}}
+\interfootnotelinepenalty=10000
 
 % \renewcommand{\chaptermark}[1]{\markright{\thechapter\ #1}}
 \renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
@@ -69,11 +70,20 @@
 \pagenumbering{roman}
 \input{page_garde}
 
-% \section*{Remerciements}
-% \renewcommand{\leftmark}{REMERCIEMENTS}
-% %\addcontentsline{toc}{chapter}{Remerciements}
+\section*{Remerciements}
+\renewcommand{\leftmark}{REMERCIEMENTS}
+\addcontentsline{toc}{chapter}{Remerciements}
 
-% Je remercie ...\\
+Je remercie premièrement mon directeur Olivier Delgrange pour m'avoir
+proposé un sujet de projet me permettant de résoudre un problème personnel
+et ainsi me donner la motivation de travailler sur celui-ci. Je le remercie,
+ainsi que les rapporteurs, Bruno Quoitin et Sylvain Degrandsart pour les
+commentaires qu'ils ont fait sur mon pré-rapport. Je remercie aussi
+Bruno Quoitin pour son aide, ses réponses et ses conseils qui m'ont permis
+d'améliorer et de simplifier le protocole expliqué dans ce rapport.
+Enfin je remercie aussi Pierre Declerq pour le temps passé à relire
+ce rapport, ainsi qu'Antoine Georis, Gregory Laus, Patrick Demeire et Pierre
+Jaradin pour les tests qu'ils ont effectués.\\
 
 \newpage
 \renewcommand{\leftmark}{TABLE DES MATI\`{E}RES}

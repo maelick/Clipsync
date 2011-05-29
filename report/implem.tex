@@ -42,7 +42,8 @@ chapitre afin d'analyser les performances du logiciel et pour s'assurer que
 le programme n'est pas victime de fuites de mémoires.
 Bazaar\cite{bzr} a été utilisé comme gestionnaire de versions décentralisé et
 Launchpad\cite{launchpad} a été choisi comme forge sur laquelle déposer le
-logiciel produit.
+logiciel produit. Ce dernier est donc disponible sous license GPL à l'adresse
+\url{https://launchpad.net/clipsync}.
 
 \section{Utilisation des logiciels}
 Avant de pouvoir récupérer, compiler et utiliser le logiciel, il est nécessaire
@@ -160,3 +161,30 @@ confirment cette hypothèse.}. Dés lors il est possible de gérer l'historique
 du presse-papier en installant un tel outil sur chaque machine et d'utiliser
 Clipsync uniquement pour synchroniser la donnée se situant réellemet dans
 le presse-papier du système.
+
+Une autre amélioration a prendre en compte assez rapidement est le support
+de l'IPv6. En effet le fichier configuration permet d'activer IPv6 mais
+cette option ne fonctionne pas. Ce problème vient du fait que l'adresse
+de broadcast est récupérée via POCO à partir du nom de l'interface réseau
+fournie dans le fichier de configuration. Cependant une interface n'ayant
+pas d'adresse de broadcast en IPv6, Clipsync sera incapable de trouver
+cette adresse de broadcast et ne peut donc fonctionner. Il sera donc nécessaire
+d'adapter le logiciel en utilisant par exemple plutôt le multicast que le
+broadcast.
+
+Bien que la compression et le support des images soient deux fonctionnalités
+pouvant améliorer Clipsync et lui donner une plue value importante, le passage
+à l'IPv6 est cependant un problème d'actualité assez urgent. Pour cette
+raison le support de l'IPv6 est prioritaire en comparaison à l'ajout des
+deux fonctionnalités précédemment citées. Ceci permettra ainsi à Clipsync
+d'avoir un réel avantage technique sur Remote Clip dont le seul réel défaut
+est de devenir vieillissant et donc de ne pas supporter l'IPv6.
+
+Enfin à plus long terme, il sera certainement intéressant de revoir la
+structure du logiciel afin qu'il puisse rester facile à maintenir.
+Une de ces améliorations pourrait être l'utilisation de \emph{Zeroconf}
+\footnote{Ensemble de protocoles dont le but est de fournir des services
+d'auto-configuration permettant entre autre de découvrir les services
+disponibles sur un réseau local.} qui pourrait remplacer le système de
+broadcast mis en place en utilisant une implémentation libre telle
+qu'\emph{Avahi}\cite{avahi} ou \emph{Bonjour}\cite{bonjour}.
