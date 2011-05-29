@@ -84,9 +84,7 @@ l'intermédiaire d'autres logiciels qui seront définis par la suite.
 Il faut définir de manière plus précise comment l'ensemble des clients P2P
 vont s'organiser afin de s'informer pour savoir quel client \emph{détient} le
 presse-papier, comment un pair entre dans le réseau et comment détecter
-qu'un pair a quitté celui-ci (volontairement ou pas). Des exemples
-de fonctionnement de cette architecture et du protocole qui seront mis en
-oeuvre sont montrés dans les figures \ref{fig:join} et \ref{fig:copypaste}.
+qu'un pair a quitté celui-ci (volontairement ou pas).
 
 \subsubsection{Gestion du presse-papier en P2P}
 Il y a principalement deux possibilités pour gérer le presse-papier
@@ -162,7 +160,7 @@ initialement copiée.}
 En fin de compte, il est clair que la description du fonctionnement de X Window
 est la deuxième solution décrite précédemment.
 
-\subsubsection{Choix de solution pour la gestion et
+\subsubsection{Choix d'une solution pour la gestion et
 synchronisation du presse-papier}
 Il faut donc faire un choix entre une de ces deux solutions. Un des critères
 définit au début de ce travail étant de cibler Unix, il semble idéal de se
@@ -195,12 +193,35 @@ Pour cela, il faut que chaque pair envoie à interval régulier un message
 en broadcast, sur le réseau local, permettant d'identifier le groupe de pairs
 auquel il appartient ou veut appartenir. Tout pair appartenant au groupe et
 recevant le message doit alors contacter le pair ayant envoyé le message en
-ouvrant une connexion TCP sécurisée. Il faut cependant faire attention à un
+ouvrant une connexion TCP. Il faut cependant faire attention à un
 problème: le nombre de connexions TCP ouvertes peut devenir une charge
 importante pour le réseau. En effet pour un groupe de $n$ pair, $n-1$
 connexions sera ouverte pour chaque pair. Le nombre de connexions serait donc
-en $(O(n^2)$. Cependant le réseau P2P étant limité à quelques pairs dans le
+en $O(n^2)$. Cependant le réseau P2P étant limité à quelques pairs dans le
 cas du CCMP, ceci n'est pas handicapant.
+
+De même afin d'ouvrir plusieurs fois une connexion TCP avec un pair déjà
+connu, il faut gérer une table des pairs dans laquelle sera ajouté un
+pair identifié. Les figures \ref{fig:broadcast} et \ref{fig:connections}
+illustrent par des diagrammes d'états comment un pair se comporte pour
+contacter les autres pairs du réseaux.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics{broadcast}
+  \caption{Diagramme d'états modélisant l'envoi de messages en broadcast
+    par le client P2P.}
+  \label{fig:broadcast}
+\end{figure}
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=\textwidth]{connections}
+  \caption{Diagramme d'états modélisant le comportement du client P2P lors
+    de la réception d'un message broadcast et lors de l'acceptation d'une
+    connexion TCP.}
+  \label{fig:connections}
+\end{figure}
 
 \subsubsection{Quitter le réseau}
 Lorsqu'un pair quitte le réseau, il doit notifier l'ensemble des autres
@@ -217,6 +238,36 @@ ayant quitté le réseau. Si la connexion physique est rétablie, le pair
 \emph{disparu} peut alors rejoindre à nouveau le réseau grâce au mécanisme
 de broadcast.
 
+\subsubsection{Authentification des pairs}
+Afin d'assurer que le contenu du presse papier reste confidentiel à son
+utilisateur et qu'aucune personne présente sur le réseau ne soit capable de
+modifier son contenu, un système d'authentification doit être mis en place.
+Celui-ci permet, une fois que le contenu des paquets envoyés sur le réseau est
+chiffré, de s'assurer qu'aucun utilisateur non désiré puisse accéder au
+presse-papier.
+Ce système d'authentification est basé sur le protocole de Needham-Schroeder
+\cite{1978Needham} permettant l'échange sécurisé de clés de chiffrement
+en utilisant une autorité de confiance. Ici cependant l'autorité de confiance
+est l'utilisateur ayant au préalable configuré le logiciel.
+Pour cela lors de l'ouverture d'une connexion TCP, chaque
+pair envoie un message de type JOIN avec son nom de pair et un
+\emph{nonce}. C'est un nombre généré de manière pseudo-aléatoire que le
+pair devra renvoyer incrémenté de un. Ceci permet d'avoir un nombre
+utilisé une seule fois et d'empêcher un utilisateur étranger
+de rejoindre le réseau de pairs en réutilisant un message qui aurait déjà
+été utilisé. Le comportement d'un pair ayant été contacté par un autre pair
+est illustré par un diagramme d'états dans la figure \ref{fig:peerhandler}.
+Le comportement pour le pair ayant initié le contact est le même.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.9\textwidth]{peerhandler}
+  \caption{Diagramme d'états illustrant le comportement d'un pair
+    contactant un autre pair ou d'un pair ayant été contacté par un autre
+    pair}
+  \label{fig:peerhandler}
+\end{figure}
+
 \subsection{Client local}
 Le client P2P est le \emph{front-end} avec le réseau, il est chargé
 de communiquer avec les pairs du réseau afin de les découvrir et savoir
@@ -228,8 +279,6 @@ lorsque que l'utilisateur effectue un coller.
 De même le client P2P envoie le contenu du presse-papier au client local si
 ce dernier a envoyé une requête pour l'obtenir ou si un autre ou un autre
 client local a changé le contenu du presse-papier.
-Un exemple d'interaction entre clients locaux et clients P2P utilisant
-le protocole mis en oeuvre est montré sur la figure \ref{fig:local}.
 
 Cependant, contrairement au client P2P, il peut y avoir plusieurs clients
 locaux tournant sur le même ordinateur. Chacun d'entre eux étant destiné
@@ -343,29 +392,6 @@ DATA <SP> <TYPE> <SP> <LENGTH> <SP> <CONTENT> <LF>
   doit vérifier la variable LENGTH.
 \end{description}
 
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.9\textwidth]{fig_join}
-  \caption{Le pair 3 qui rejoint un réseau. Les lignes en pointillés
-    représentent les pairs qui se connaissent mutuellement \emph{i.e.} qui ont
-    une connexion TCP/TLS ouverte, et les flèches les communications réseaux
-    entre deux pairs. Les messages envoyés sont numérotés afin de suivre
-    l'ordre dans lequel ils sont envoyés.}
-  \label{fig:join}
-\end{figure}
-
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.9\textwidth]{fig_copypaste}
-  \caption{Exemple de copier/coller: le pair 1 copie le texte HELLO WORLD!
-    et l'envoie au pair 3 qui fait un coller. Les lignes en pointillés
-    représentent les pairs qui se connaissent mutuellement \emph{i.e.} qui ont
-    une connexion TCP/TLS ouverte, et les flèches les communications réseaux
-    entre deux pairs. Les messages envoyés sont numérotés afin de suivre
-    l'ordre dans lequel ils sont envoyés.}
-  \label{fig:copypaste}
-\end{figure}
-
 \subsection{Protocole local}
 \subsubsection*{GET}
 Ce type de message est envoyé par le client local pour demander au client P2P
@@ -394,42 +420,3 @@ DATA <SP> <TYPE> <SP> <LENGTH> <SP> <CONTENT> <LF>
 \item[Variable CONTENT:] contenu de la donnée dont la longueur
   doit vérifier la variable LENGTH.
 \end{description}
-
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.9\textwidth]{fig_local}
-  \caption{Exemple de copier/coller avec clients locaux. Les lignes en
-    pointillés représentent les pairs qui se connaissent mutuellement
-    \emph{i.e.} qui ont une connexion TCP/TLS ouverte, et les flèches les
-    communications réseaux entre deux pairs. Les messages envoyés sont
-    numérotés afin de suivre l'ordre dans lequel ils sont envoyés.}
-  \label{fig:local}
-\end{figure}
-
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.9\textwidth]{p2pclient_broadcast}
-  \caption{P2P Client Broadcast}
-  \label{fig:p2pclient_broadcast}
-\end{figure}
-
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.9\textwidth]{p2pclient_connections}
-  \caption{P2P Client Connections}
-  \label{fig:p2pclient_connections}
-\end{figure}
-
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.9\textwidth]{p2pclient_peerhandler1}
-  \caption{P2P Client Peer Handler 1}
-  \label{fig:p2pclient_peerhandler1}
-\end{figure}
-
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.9\textwidth]{p2pclient_peerhandler2}
-  \caption{P2P Client Peer Handler 2}
-  \label{fig:p2pclient_peerhandler2}
-\end{figure}

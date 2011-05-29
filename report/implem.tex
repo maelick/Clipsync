@@ -1,5 +1,6 @@
 \chapter{Implémentation de la solution proposée}
 \renewcommand{\leftmark}{\thechapter.~~Implémentation de la solution proposée}
+\label{chap:implem}
 Ce chapitre justifiera premièrement les choix qui ont été fait avant et
 pendant l'implémentationde de l'architecture baptisée \emph{Clipsync}.
 Ensuite une présentation de l'utilisation des
@@ -26,8 +27,12 @@ compatibilité théorique avec Microsoft Windows, bien que celle-ci n'a pas
 été testée. De plus POCO offrant un grand nombre de service, la librairie
 a aussi été utilisée pour la gestion des threads et des timers, la
 configuration du logiciel grâce à un fichier XML, pour la protection de
-zones critiques avec mutex, pour la cryptographie et pourla génération de
-nombres pseudo-aléatoires.
+zones critiques avec mutex, pour la génération de
+nombres pseudo-aléatoires et pour la cryptographie. L'algorithme de chiffrement
+utilisé est l'\emph{AES}\cite{daemen2002the} (Advanced Encryption Standard,
+aussi connu sous le nom de \emph{Rijndael}). Etant l'algorithme choisi par le
+gouvernement américain, cet algorithme utilisant une clé de 256 bits permet un
+niveau de sécurité très largement acceptable.
 
 Afin d'éviter les erreurs en C++, et en particulier les fuites de mémoire,
 Valgrind\cite{valgrind} a été utilisé. Celui-ci est à la fois un debugger,
@@ -88,7 +93,7 @@ et leur description:
     posséder le même nom de groupe dans sa configuration.
   \item \emph{passphrase} et \emph{salt}: mot de passe et sel\footnote{Le
       salage en cryptographie permet de renforcer la sécurité d'un algorithme
-      de chiffrement\cite{wiki:salage}} servant à générer la clé pour le
+      de chiffrement\cite{schneier-crypto}} servant à générer la clé pour le
     chiffrement par AES. Ces deux valeurs doivent être identiques sur chaque
     pair. Il est possible de supprimer ces deux valeurs, de lancer le
     logiciel qui va générer des valeurs aléatoires qui peuvent ensuite
