@@ -38,4 +38,4 @@ if __name__ == "__main__":
             sys.exit(1)
     else:
         sys.stderr.write("Please specify as argument the port on which to " +
-                         "send the clipboard as argument\n")
+                         "send the clipboard.\n")
