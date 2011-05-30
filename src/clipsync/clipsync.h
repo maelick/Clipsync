@@ -16,8 +16,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DEF_P2P_H
-#define DEF_P2P_H
+#ifndef DEF_CLIPSYNC_H
+#define DEF_CLIPSYNC_H
 
 #include <Poco/ThreadPool.h>
 #include "config.h"
@@ -25,17 +25,17 @@
 #include "clipboard_manager.h"
 
 /*!
- * P2PClient is the main class used to encapsulate the others and to represent
- * the P2P client.
+ * Clipsync is the main class used to encapsulate the others and to represent
+ * the Clipsync's P2P client.
  */
-class P2PClient
+class Clipsync
 {
 public:
     /*!
      * Initializes the P2Client with a config file name.
      */
-    P2PClient(std::string &confFile);
-    ~P2PClient();
+    Clipsync(std::string &confFile);
+    ~Clipsync();
 
     /*!
      * Returns the Config of this client.
@@ -43,7 +43,7 @@ public:
     Config* getConfig();
 
     /*!
-     * Starts the P2PClient and waits for it to finish.
+     * Starts the Clipsync and waits for it to finish.
      */
     void start();
 

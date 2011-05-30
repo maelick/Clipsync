@@ -12,7 +12,7 @@ endif
 # Libs
 
 # Executables
-EXEC=main.exe poco_encrypt_test.exe
+EXEC=clipsync.exe poco_encrypt_test.exe
 
 # Rules
 all: $(EXEC)
@@ -21,7 +21,7 @@ ifeq ($(DEBUG), yes)
 endif
 
 # Dependencies
-main.exe: broadcaster.o p2p.o config.o peer_handler.o clipboard_manager.o local_frontend.o
+clipsync.exe: broadcaster.o config.o peer_handler.o clipboard_manager.o local_frontend.o
 
 # Rules (cont'd)
 %.exe: %.o

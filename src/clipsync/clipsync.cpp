@@ -16,31 +16,65 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "p2p.h"
+#include "clipsync.h"
+
+#include <iostream>
+#include <Poco/Exception.h>
+#include <Poco/Net/NetException.h>
 
 using namespace std;
 
-P2PClient::P2PClient(string &confFile):
+Clipsync::Clipsync(string &confFile):
     conf(new Config(confFile))
 {
     this->manager = new ClipboardManager(this->conf);
     this->b = new Broadcaster(this->conf, this->manager);
 }
 
-P2PClient::~P2PClient()
+Clipsync::~Clipsync()
 {
     delete this->conf;
     delete this->manager;
     delete this->b;
 }
 
-Config* P2PClient::getConfig()
+Config* Clipsync::getConfig()
 {
     return this->conf;
 }
 
-void P2PClient::start()
+void Clipsync::start()
 {
     this->manager->start();
     this->b->start();
+}
+
+int start(string conf)
+{
+    Clipsync *p2p;
+
+    try {
+        p2p = new Clipsync(conf);
+    } catch(Poco::FileNotFoundException e) {
+        cerr << "Configuration file " << conf << " doesn't exist." << endl;
+        return 1;
+    } catch(Poco::Net::InterfaceNotFoundException e) {
+        cerr << "Unable to find interface " << e.message() << "." << endl;
+        return 1;
+    }
+
+    p2p->start();
+
+    delete p2p;
+
+    return 0;
+}
+
+int main(int argc, char **argv) {
+    if(argc <  2) {
+        cerr << "Please enter a configuration file name." << endl;;
+        return 1;
+    } else {
+        return start(argv[1]);
+    }
 }
