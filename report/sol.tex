@@ -268,6 +268,10 @@ Le comportement pour le pair ayant initié le contact est le même.
   \label{fig:peerhandler}
 \end{figure}
 
+\subsection{Envoi du presse-papier}
+Le presse-papier est envoyé lorsqu'un client local notifie le client
+P2P qu'un copier a été effectué. Afin de permettre 
+
 \subsection{Client local}
 Le client P2P est le \emph{front-end} avec le réseau, il est chargé
 de communiquer avec les pairs du réseau afin de les découvrir et savoir
@@ -298,14 +302,15 @@ de clients différents:
 \end{itemize}
 
 \section{Protocoles}
-Deux protocoles sont à définir afin de faire fonctionner l'application
-correctement. Le premier est celui utilisé sur le réseau par les clients
-P2P afin de communiquer entre eux. Le second est utilisé entre le client
+Trois protocoles sont à définir afin de faire fonctionner l'application
+correctement. Le premier est celui permettant de découvrir des pairs grâce au
+broadcast. Le second est celui utilisé sur le réseau par les clients
+P2P afin de communiquer entre eux. Le dernier est utilisé entre le client
 P2P et les clients locaux afin de se notifier mutuellement de changements
-dans le presse papier. De même ils doivent tous les deux prendre en compte
+dans le presse papier. De même ils doivent prendre en compte
 l'aspect sécurité, en proposant un moyen d'identification.
-Ces deux protocoles seront appelés respectivement protocole P2P et protocole
-local.
+Ces trois protocoles seront appelés respectivement protocole broadcast,
+protocole P2P et protocole local.
 
 Les protocoles sont caractérisés par un ensemble de types de messages.
 Ceux-ci sont décrits en utilisant la syntaxe suivant:
@@ -318,9 +323,22 @@ et le message se termine par un retour chariot (<CRLF>). Chaque variable est
 ensuite décrite et le type de messages pouvant être reçu comme réponse est
 décrit.
 
+\subsection{Protocole broadcast}
+\subsubsection*{JOIN}
+Un message de type JOIN sert à authentifier un pair.
+\begin{verbatim}
+JOIN <SP> <NAME> <SP> <GROUP> <CRLF>
+\end{verbatim}
+\begin{description}
+\item[Variable NAME:] identifiant du pair envoyant le message.
+\item[Variable GROUP:] nom du groupe de pairs.
+\item[Réponse:] si le pair n'est pas déjà présent dans la table des pairs,
+  il faut ouvrir une connexion TCP avec celui-ci en utilisant le protocole P2P.
+\end{description}
+
 \subsection{Protocole P2P}
 \subsubsection*{JOIN}
-Un message de type JOIN sert à authentifier un pair:
+Un message de type JOIN sert à authentifier un pair.
 \begin{verbatim}
 JOIN <SP> <NAME> <SP> <CHALLENGE> <CRLF>
 \end{verbatim}
@@ -334,6 +352,7 @@ JOIN <SP> <NAME> <SP> <CHALLENGE> <CRLF>
 \hrulefill
 
 \subsubsection*{ACCEPT}
+Un message de type ACCEPT sert de réponse à un message JOIN.
 \begin{verbatim}
 ACCEPT <SP> <CHALLENGE> <CRLF>
 \end{verbatim}
@@ -348,7 +367,7 @@ ACCEPT <SP> <CHALLENGE> <CRLF>
 
 \subsubsection*{KO}
 Ce type de message permet de signaler un refus ou une erreur et de fermer
-la connexion:
+la connexion.
 \begin{verbatim}
 KO <SP> <ERRNO> <CRLF>
 \end{verbatim}
@@ -375,9 +394,13 @@ OK <CRLF>
 \hrulefill
 
 \subsubsection*{DATA}
-Un message de type DATA permet d'envoyer le contenu du presse-papier:
+Un message de type DATA permet d'envoyer le contenu du presse-papier.
+Le contenu presse-papier peut être fragmenté et être envoyé dans plusieurs
+messages DATA. Ceci permet d'éviter d'avoir à envoyer un message DATA très
+long dans le cas d'un presse-papier de grande taille et ainsi d'être sûr
+que les keep alive OK seront biens transmis.
 \begin{verbatim}
-DATA <SP> <TYPE> <SP> <LENGTH> <SP> <CONTENT> <CRLF>
+DATA <SP> <TYPE> <SP> <MORE> <SP> <LENGTH> <SP> <CONTENT> <CRLF>
 \end{verbatim}
 \begin{description}
 \item[Variable TYPE:] cette variable permet de préciser le type
@@ -387,6 +410,10 @@ DATA <SP> <TYPE> <SP> <LENGTH> <SP> <CONTENT> <CRLF>
   \begin{description}
   \item[0] texte.
   \end{description}
+\item[Variable MORE:] vaut 1 s'il y a encore des données fragmentées qui
+  suivent, 0 sinon.
+  Si la variable vaut 1, alors il faut bufferiser le contenu du message
+  jusqu'à ce qu'à recevoir un message DATA avec cette variable égale à 0.
 \item[Variable LENGTH:] longueur de la donnée en bytes.
 \item[Variable CONTENT:] contenu de la donnée dont la longueur
   doit vérifier la variable LENGTH.
@@ -404,7 +431,7 @@ GET <CRLF>
 
 \subsubsection*{DATA}
 Un message de type DATA permet d'envoyer le contenu du presse-papier. Un tel
-message peut aussi bien être envoyé par le client P2P que par le client local:
+message peut aussi bien être envoyé par le client P2P que par le client local.
 \begin{verbatim}
 DATA <SP> <TYPE> <SP> <LENGTH> <SP> <CONTENT> <CRLF>
 \end{verbatim}
