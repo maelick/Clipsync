@@ -1,0 +1,10 @@
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.ps
+*.toc
+*.eps
+*.xml
+*-blx.bib
+*.log

@@ -41,8 +41,7 @@ void ClipboardManager::start()
 void ClipboardManager::run()
 {
     while(true) {
-        SocketAddress addr;
-        StreamSocket sock = this->ssock.acceptConnection(addr);
+        DialogSocket *sock = new DialogSocket(this->ssock.acceptConnection());
         PeerHandler *handler =  new PeerHandler(this->conf, &this->pool,
                                                 this, sock, false);
         this->peerMutex.lock();
@@ -58,7 +57,7 @@ void ClipboardManager::run()
 void ClipboardManager::contact(SocketAddress &addr, string peerName)
 {
     if(!this->peers.count(peerName)) {
-        StreamSocket sock(addr);
+        DialogSocket *sock = new DialogSocket(addr);
         PeerHandler *handler = new PeerHandler(this->conf, &this->pool,
                                                this, sock, true);
         this->peerMutex.lock();

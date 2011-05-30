@@ -21,7 +21,6 @@
 #include <Poco/RegularExpression.h>
 #include <vector>
 #include <iostream>
-#include <sstream>
 
 #include "clipboard_manager.h"
 
@@ -31,7 +30,7 @@ using namespace Poco::Net;
 using namespace std;
 
 PeerHandler::PeerHandler(Config *conf, Poco::ThreadPool *pool,
-                         ClipboardManager *manager, StreamSocket &sock,
+                         ClipboardManager *manager, DialogSocket *sock,
                          bool initiator):
     conf(conf),
     pool(pool),
@@ -47,6 +46,11 @@ PeerHandler::PeerHandler(Config *conf, Poco::ThreadPool *pool,
 {
 }
 
+PeerHandler::~PeerHandler()
+{
+    delete this->sock;
+}
+
 void PeerHandler::run()
 {
     this->acceptSent = false;
@@ -54,10 +58,9 @@ void PeerHandler::run()
     this->isRunning = true;
     this->sendJoin();
     while(this->isRunning) {
-        char buffer[1024];
-        int n = this->sock.receiveBytes(buffer, sizeof(buffer));
-        if(n > 0) {
-            this->treatMsg(string(buffer, n));
+        string s = "";
+        if(this->sock->receiveMessage(s)) {
+            this->treatMsg(s);
         } else {
             this->close();
         }
@@ -67,7 +70,7 @@ void PeerHandler::run()
 
 void PeerHandler::sendMsg(string msg)
 {
-    this->sock.sendBytes(msg.c_str(), msg.size());
+    this->sock->sendMessage(msg);
 }
 
 void PeerHandler::sendClose(int reason)
@@ -80,7 +83,7 @@ void PeerHandler::sendJoin()
 {
     ostringstream oss;
     oss << "JOIN " << this->conf->getPeerName()
-        << " " << this->challenge << endl;
+        << " " << this->challenge;
     this->t1.start(TimerCallback<PeerHandler>(*this, &PeerHandler::onTimer1),
                   *this->pool);
     this->sendMsg(oss.str());
@@ -89,7 +92,7 @@ void PeerHandler::sendJoin()
 void PeerHandler::sendKo(int error)
 {
     ostringstream oss;
-    oss << "KO " << error << endl;
+    oss << "KO " << error;
     this->sendMsg(oss.str());
 }
 
@@ -97,7 +100,7 @@ void PeerHandler::close()
 {
     if(this->verbose) {
         cout << "Closing connection with " << this->peerName << " on address "
-             << this->sock.peerAddress().toString() << endl;
+             << this->sock->peerAddress().toString() << endl;
     }
     this->isRunning = false;
     this->t1.restart(0);
@@ -134,7 +137,7 @@ void PeerHandler::treatMsg(string msg)
                             RegularExpression::RE_DOTALL);
     RegularExpression koMsg("^KO ([0-9]+).*",
                             RegularExpression::RE_DOTALL);
-    RegularExpression dataMsg("^DATA ([0-9]+) ([0-9]+) (.*)",
+    RegularExpression dataMsg("^DATA ([0-9]+) ([01]) ([0-9]+) (.*)",
                               RegularExpression::RE_DOTALL);
 
     vector<string> v;
@@ -152,19 +155,16 @@ void PeerHandler::treatMsg(string msg)
         this->treatKo(getInt(v[1]));
     } else if(dataMsg.match(msg) && this->acceptSent && this->acceptVerified) {
         dataMsg.split(msg, v);
-        this->treatData(getInt(v[1]), getInt(v[2]), v[3]);
+        this->treatData(getInt(v[1]), getInt(v[2]), getInt(v[3]), v[4]);
     } else if(this->verbose) {
         cout << "Unknown message received from peer " << this->peerName
-             << " on address " << this->sock.peerAddress().toString()
+             << " on address " << this->sock->peerAddress().toString()
              << endl << msg << endl;;
     }
 }
 
-void PeerHandler::treatData(int type, int length, string data)
+void PeerHandler::treatData(int type, int hasMore, int length, string data)
 {
-    ostringstream buf;
-    buf << data;
-
     if(type != 0) {
         if(this->verbose) {
             cout << "Unable to treat datatype " << type << endl;
@@ -173,31 +173,42 @@ void PeerHandler::treatData(int type, int length, string data)
         return;
     }
 
-    while(buf.str().size() < length) {
-        char buffer[1024];
-        int n = this->sock.receiveBytes(buffer, sizeof(buffer));
-        if(n > 0) {
-            buf << string(buffer, n);
-        } else {
-            this->isRunning = false;
-            this->close();
-        }
+    this->buf << data.substr(0, length);
+    if(hasMore) {
+        this->buf << "\n";
+    } else {
+        this->manager->syncClipboard(this->buf.str());
+        this->buf.str("");
     }
+}
 
-    this->manager->syncClipboard(buf.str().substr(0, length));
+vector<string>* split(string data)
+{
+    vector<string> *v = new vector<string>();
+    stringstream datastream(data);
+    while(getline(datastream, data, '\n')) {
+        v->push_back(data);
+    }
+    return v;
 }
 
 void PeerHandler::sendData(string data)
 {
-    ostringstream oss;
-    oss << "DATA 0 " << data.size()
-        << " " << data << endl;
-    this->sendMsg(oss.str());
+    vector<string> &v = *split(data);
+
+    for(int i = 0; i < v.size(); i++) {
+        ostringstream oss;
+        oss << "DATA 0 " << (i < v.size() - 1 ) << " " << v[i].size()
+            << " " << v[i];
+        this->sendMsg(oss.str());
+    }
+
+    delete &v;
 }
 
 void PeerHandler::treatOk()
 {
-    if(this->accepptVerified) {
+    if(this->acceptVerified) {
         this->t1.restart();
     }
 }
@@ -266,10 +277,12 @@ void PeerHandler::verifyAccept(int nbr)
 
 void PeerHandler::treatJoin(string peerName, int nbr)
 {
-    cout << "Accept sent to peer " << this->peerName << endl;
+    if(this->verbose) {
+        cout << "Accept sent to peer " << this->peerName << endl;
+    }
     this->peerName = peerName;
     ostringstream oss;
-    oss << "ACCEPT " << nbr + 1 << endl;
+    oss << "ACCEPT " << nbr + 1;
     this->sendMsg(oss.str());
     this->acceptSent = true;
     this->t2.start(TimerCallback<PeerHandler>(*this, &PeerHandler::onTimer2),
@@ -279,12 +292,14 @@ void PeerHandler::treatJoin(string peerName, int nbr)
 
 void PeerHandler::onTimer1(Poco::Timer &timer)
 {
-    cout << "Timeout for peer " << this->peerName << endl;
+    if(this->verbose) {
+        cout << "Timeout for peer " << this->peerName << endl;
+    }
     this->sendClose(1);
     this->t1.restart(0);
 }
 
 void PeerHandler::onTimer2(Poco::Timer &timer)
 {
-    this->sendMsg("OK\n");
+    this->sendMsg("OK");
 }

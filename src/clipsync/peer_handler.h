@@ -19,14 +19,15 @@
 #ifndef DEF_PEER_HANDLER_H
 #define DEF_PEER_HANDLER_H
 
-#include <Poco/Net/StreamSocket.h>
+#include <Poco/Net/DialogSocket.h>
 #include <Poco/Runnable.h>
 #include <Poco/ThreadPool.h>
 #include <Poco/Timer.h>
+#include <sstream>
 
 #include "config.h"
 
-using Poco::Net::StreamSocket;
+using Poco::Net::DialogSocket;
 
 class ClipboardManager;
 
@@ -43,7 +44,8 @@ public:
      * who initiates the connection.
      */
     PeerHandler(Config *conf, Poco::ThreadPool *pool,
-                ClipboardManager *manager, StreamSocket &sock, bool initiator);
+                ClipboardManager *manager, DialogSocket *sock, bool initiator);
+    ~PeerHandler();
 
     /*!
      * Main methods of the PeerHandler called when starting a new thread.
@@ -104,7 +106,7 @@ private:
      * Treats a DATA message and gets more bytes from the socket if length
      * is lesser than the length of the already sent datas.
      */
-    void treatData(int type, int length, std::string data);
+    void treatData(int type, int hasMore, int length, std::string data);
 
     /*!
      * Treat a OK message, i.e. reset the timer.
@@ -145,10 +147,11 @@ private:
     Config *conf; //!< Config object used by Clipsync.
     Poco::ThreadPool *pool; //!< Pool used for creating new threads.
     ClipboardManager *manager; //!< Clipsync's manager.
-    StreamSocket sock; //!< Socket used for the TCP Connection.
+    DialogSocket *sock; //!< Socket used for the TCP Connection.
     std::string peerName; //!< Name of the peer connected to.
     int challenge; //!< Challenge to use for authentication.
     Poco::Timer t1, t2; //!< Timers used.
+    std::ostringstream buf; //!< Buffer used to store data.
     bool isRunning; //!< Boolean saying if the handler is running or not.
     bool initiator; //!< Boolean saying if this peer is the initiator one.
     bool acceptSent, acceptVerified; //!< Boolean used for authentication.
