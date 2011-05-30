@@ -60,7 +60,7 @@ void PeerHandler::run()
     while(this->isRunning) {
         string s = "";
         if(this->sock->receiveMessage(s)) {
-            this->treatMsg(s);
+            this->treatMsg(this->conf->decrypt(s));
         } else {
             this->close();
         }
@@ -70,7 +70,7 @@ void PeerHandler::run()
 
 void PeerHandler::sendMsg(string msg)
 {
-    this->sock->sendMessage(msg);
+    this->sock->sendMessage(this->conf->encrypt(msg));
 }
 
 void PeerHandler::sendClose(int reason)
@@ -174,27 +174,26 @@ void PeerHandler::treatData(int type, int hasMore, int length, string data)
     }
 
     this->buf << data.substr(0, length);
-    if(hasMore) {
-        this->buf << "\n";
-    } else {
+    if(!hasMore) {
         this->manager->syncClipboard(this->buf.str());
         this->buf.str("");
     }
 }
 
-vector<string>* split(string data)
+void split(string data, vector<string> &v)
 {
-    vector<string> *v = new vector<string>();
     stringstream datastream(data);
     while(getline(datastream, data, '\n')) {
-        v->push_back(data);
+        v.push_back(data + '\n');
     }
-    return v;
+    int n = v.size() - 1;
+    v[n] = v[n].substr(0, v[n].size() - 1);
 }
 
 void PeerHandler::sendData(string data)
 {
-    vector<string> &v = *split(data);
+    vector<string> v;
+    split(data, v);
 
     for(int i = 0; i < v.size(); i++) {
         ostringstream oss;
@@ -202,8 +201,6 @@ void PeerHandler::sendData(string data)
             << " " << v[i];
         this->sendMsg(oss.str());
     }
-
-    delete &v;
 }
 
 void PeerHandler::treatOk()

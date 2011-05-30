@@ -19,6 +19,7 @@
 #include "config.h"
 
 #include <Poco/Crypto/CipherFactory.h>
+#include <Poco/String.h>
 
 using Poco::Crypto::CipherFactory;
 using namespace std;
@@ -41,7 +42,7 @@ Config::Config(string &confFile):
     this->gen.seed();
     this->initConfigFile(confFile);
     CipherFactory &cf = CipherFactory::defaultFactory();
-    this->cipherKey =  new CipherKey("aes-256-cbc",
+    this->cipherKey =  new CipherKey("aes-256-ofb",
                                      this->passphrase, this->salt);
     this->cipher = cf.createCipher(*this->cipherKey);
 }
@@ -143,12 +144,18 @@ int Config::getChallenge()
 
 string Config::encrypt(string s)
 {
-    return this->cipher->encryptString(s);
+    s = this->cipher->encryptString(s, Cipher::ENC_BASE64);
+    s = Poco::translate(s, "\r\n", "");
+    s = Poco::translate(s, "\n", "");
+    return s;
 }
 
 string Config::decrypt(string s)
 {
-    return this->cipher->decryptString(s);
+    s = Poco::translate(s, "\r\n", "");
+    s = Poco::translate(s, "\n", "");
+    s = this->cipher->decryptString(s, Cipher::ENC_BASE64);
+    return s;
 }
 
 string Config::getRandomString()
