@@ -182,12 +182,12 @@ void PeerHandler::treatData(int type, int hasMore, int length, string data)
 
 void split(string data, vector<string> &v)
 {
-    stringstream datastream(data);
-    while(getline(datastream, data, '\n')) {
-        v.push_back(data + '\n');
-    }
-    int n = v.size() - 1;
-    v[n] = v[n].substr(0, v[n].size() - 1);
+    int n = data.size();
+    int i = 0;
+    do {
+        v.push_back(data.substr(i, 4096));
+        i += 4096;
+    } while(i < n);
 }
 
 void PeerHandler::sendData(string data)

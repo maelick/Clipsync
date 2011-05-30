@@ -67,7 +67,8 @@ public:
     bool compare(PeerHandler *other);
 
     /*!
-     * Sends data (clipboard in DATA message) to the peer.
+     * Sends the content of the clipboard splits in DATA message where
+     * the content as a maximum size of 4096 bytes.
      */
     void sendData(std::string data);
 
