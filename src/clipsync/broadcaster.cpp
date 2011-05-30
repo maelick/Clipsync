@@ -84,7 +84,7 @@ void Broadcaster::onTimer(Poco::Timer &timer)
 
     string msg =
         "JOIN " + this->conf->getPeerName() +
-        " " + this->conf->getGroup();
+        " " + this->conf->getGroup() + "\r\n";
     msg = this->conf->encrypt(msg);
     this->s2.sendTo(msg.data(), msg.size(), bcastAddr);
 }
