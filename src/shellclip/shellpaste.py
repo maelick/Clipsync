@@ -46,7 +46,7 @@ if __name__ == "__main__":
         except KeyboardInterrupt:
             sys.exit(0)
         except:
-            sts.stderr.write("Unable to connect\n")
+            sys.stderr.write("Unable to connect\n")
     else:
         sys.stderr.write("Please specify as argument the port on which to " +
                          "get the clipboard as argument\n")
