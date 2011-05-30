@@ -197,7 +197,9 @@ void PeerHandler::sendData(string data)
 
 void PeerHandler::treatOk()
 {
-    this->t1.restart();
+    if(this->accepptVerified) {
+        this->t1.restart();
+    }
 }
 
 void PeerHandler::treatKo(int error)
