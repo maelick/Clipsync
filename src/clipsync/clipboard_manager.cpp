@@ -81,7 +81,6 @@ void ClipboardManager::removeLocal(LocalHandler *handler)
         this->localHandlers.erase(it);
     }
     this->localMutex.unlock();
-    delete handler;
 }
 
 void ClipboardManager::addLocal(LocalHandler *handler)

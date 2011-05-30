@@ -80,6 +80,7 @@ void LocalHandler::run()
             this->close();
         }
     }
+    delete this;
 }
 
 void LocalHandler::sendMsg(string msg)
