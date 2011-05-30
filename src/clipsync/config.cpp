@@ -146,14 +146,11 @@ string Config::encrypt(string s)
 {
     s = this->cipher->encryptString(s, Cipher::ENC_BASE64);
     s = Poco::translate(s, "\r\n", "");
-    s = Poco::translate(s, "\n", "");
     return s;
 }
 
 string Config::decrypt(string s)
 {
-    s = Poco::translate(s, "\r\n", "");
-    s = Poco::translate(s, "\n", "");
     s = this->cipher->decryptString(s, Cipher::ENC_BASE64);
     return s;
 }
