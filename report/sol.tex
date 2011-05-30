@@ -242,17 +242,17 @@ de broadcast.
 Afin d'assurer que le contenu du presse papier reste confidentiel à son
 utilisateur et qu'aucune personne présente sur le réseau ne soit capable de
 modifier son contenu, un système d'authentification doit être mis en place.
-Celui-ci permet, une fois que le contenu des paquets envoyés sur le réseau est
-chiffré, de s'assurer qu'aucun utilisateur non désiré puisse accéder au
+Celui-ci permet de s'assurer qu'aucun utilisateur non désiré puisse accéder au
 presse-papier.
+
 Ce système d'authentification est basé sur le protocole de Needham-Schroeder
 \cite{1978Needham} permettant l'échange sécurisé de clés de chiffrement
 en utilisant une autorité de confiance. Ici cependant l'autorité de confiance
 est l'utilisateur ayant au préalable configuré le logiciel.
 Pour cela lors de l'ouverture d'une connexion TCP, chaque
 pair envoie un message de type JOIN avec son nom de pair et un
-\emph{nonce}. C'est un nombre généré de manière pseudo-aléatoire que le
-pair devra renvoyer incrémenté de un. Ceci permet d'avoir un nombre
+\emph{nonce} chiffré. C'est un nombre généré de manière pseudo-aléatoire que
+le pair devra renvoyer incrémenté de un. Ceci permet d'avoir un nombre
 utilisé une seule fois et d'empêcher un utilisateur étranger
 de rejoindre le réseau de pairs en réutilisant un message qui aurait déjà
 été utilisé. Le comportement d'un pair ayant été contacté par un autre pair
@@ -310,11 +310,11 @@ local.
 Les protocoles sont caractérisés par un ensemble de types de messages.
 Ceux-ci sont décrits en utilisant la syntaxe suivant:
 \begin{verbatim}
-MSG <SP> <VAR1> <SP> <VAR2> ... <SP> <VARN> <LF>
+MSG <SP> <VAR1> <SP> <VAR2> ... <SP> <VARN> <CRLF>
 \end{verbatim}
 MSG définit le type du message. Celui-ci contient $N$ variables
 <VAR1>, <VAR2>, $\ldots$, <VARN>. Chacune est séparée par un espace (<SP>)
-et le message se termine par un passage à ligne (<LF>). Chaque variable est
+et le message se termine par un retour chariot (<CRLF>). Chaque variable est
 ensuite décrite et le type de messages pouvant être reçu comme réponse est
 décrit.
 
@@ -322,7 +322,7 @@ décrit.
 \subsubsection*{JOIN}
 Un message de type JOIN sert à authentifier un pair:
 \begin{verbatim}
-JOIN <SP> <NAME> <SP> <CHALLENGE> <LF>
+JOIN <SP> <NAME> <SP> <CHALLENGE> <CRLF>
 \end{verbatim}
 \begin{description}
 \item[Variable NAME:] identifiant du pair envoyant le message.
@@ -335,7 +335,7 @@ JOIN <SP> <NAME> <SP> <CHALLENGE> <LF>
 
 \subsubsection*{ACCEPT}
 \begin{verbatim}
-ACCEPT <SP> <CHALLENGE> <LF>
+ACCEPT <SP> <CHALLENGE> <CRLF>
 \end{verbatim}
 \begin{description}
 \item[Variable CHALLENGE:] le challenge reçu dans le message JOIN
@@ -350,7 +350,7 @@ ACCEPT <SP> <CHALLENGE> <LF>
 Ce type de message permet de signaler un refus ou une erreur et de fermer
 la connexion:
 \begin{verbatim}
-KO <SP> <ERRNO> <LF>
+KO <SP> <ERRNO> <CRLF>
 \end{verbatim}
 \begin{description}
 \item[Variable ERRNO:] code d'erreur pouvant être:
@@ -369,7 +369,7 @@ KO <SP> <ERRNO> <LF>
 Ce type de message est envoyé à interval régulier afin de servir de mécanisme
 de keep alive.
 \begin{verbatim}
-OK <LF>
+OK <CRLF>
 \end{verbatim}
 
 \hrulefill
@@ -377,7 +377,7 @@ OK <LF>
 \subsubsection*{DATA}
 Un message de type DATA permet d'envoyer le contenu du presse-papier:
 \begin{verbatim}
-DATA <SP> <TYPE> <SP> <LENGTH> <SP> <CONTENT> <LF>
+DATA <SP> <TYPE> <SP> <LENGTH> <SP> <CONTENT> <CRLF>
 \end{verbatim}
 \begin{description}
 \item[Variable TYPE:] cette variable permet de préciser le type
@@ -397,7 +397,7 @@ DATA <SP> <TYPE> <SP> <LENGTH> <SP> <CONTENT> <LF>
 Ce type de message est envoyé par le client local pour demander au client P2P
 d'envoyer le contenu du presse-papier.
 \begin{verbatim}
-GET <LF>
+GET <CRLF>
 \end{verbatim}
 
 \hrulefill
@@ -406,7 +406,7 @@ GET <LF>
 Un message de type DATA permet d'envoyer le contenu du presse-papier. Un tel
 message peut aussi bien être envoyé par le client P2P que par le client local:
 \begin{verbatim}
-DATA <SP> <TYPE> <SP> <LENGTH> <SP> <CONTENT> <LF>
+DATA <SP> <TYPE> <SP> <LENGTH> <SP> <CONTENT> <CRLF>
 \end{verbatim}
 \begin{description}
 \item[Variable TYPE:] cette variable permet de préciser le type
