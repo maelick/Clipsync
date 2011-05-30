@@ -34,6 +34,9 @@ ClipboardManager::ClipboardManager(Config *conf):
 
 void ClipboardManager::start()
 {
+    if(this->conf->getVerboseNet()) {
+        cout << "Clipsync started" << endl;
+    }
     this->pool.start(this->localManager);
     this->pool.start(*this);
 }
