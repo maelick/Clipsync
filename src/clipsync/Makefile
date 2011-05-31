@@ -12,7 +12,7 @@ endif
 # Libs
 
 # Executables
-EXEC=clipsync.exe poco_encrypt_test.exe
+EXEC=clipsync.exe
 
 # Rules
 all: $(EXEC)
