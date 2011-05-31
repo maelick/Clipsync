@@ -128,7 +128,107 @@ Python et en passant en paramètre le port TCP local permettant de contacter
 Clipsync.
 
 \section{Vérifications de performances}
+Valgrind utilisé pendant le développement de Clipsync comme debugger
+offre aussi la possibilité d'être utilisé comme profiler. Afin d'analyser
+les performances, il a d'abord été utilisé en tant que vérificateur
+de mémoire pour s'assurer que le programme n'est pas sujet à des fuites
+de mémoires. Ceci permet de s'assurer que le programme ne consommera pas
+en théorie de plus en plus de mémoire lors d'une longue utilisation.
+Dans un second temps, ceci a pu être vérifié en pratique grâce à l'outil
+Massif de Valgrind, celui-ci permettant d'analyser la taille de la pile
+d'appel tout au long de l'exécution du programme.
 
+Pour cela deux instances de Clipsync ont été lancées pendant une durée
+de 6h30. Durant cette exécution, un script se connectant régulièrement, avec
+un interval variant entre une et dix secondes, à une des deux instances et
+envoyant un contenu aléatoire (de taille variant entre 10 et 1000 bytes) à
+Clipsync via Shellclip tournait aussi.
+
+La première instance a été lancée en utilisant l'outil
+Memcheck de Valgrind dont le résultat est présent dans la figure
+\ref{fig:memcheck}. Celui-ci indique qu'aucun byte n'a été perdu au cours
+de l'exécution. Notons que les 14914 byte, qui ont été indirectement perdus,
+sont dûs au fait que le programme s'est arrêté grâce à un SIGKILL et non
+parce qu'il s'est terminé, celui-ci tournant dans une boucle infinie.
+La seconde instance a été lancée en utilisant Massif et le résultat,
+montrant une utilisation de la mémoire constante ne dépassant pas 191500
+bytes est présent sur la figure \ref{fig:memcheck}.
+
+\begin{figure}[!h]
+  \centering
+  \scriptsize{
+\begin{verbatim}
+==23131== Memcheck, a memory error detector
+==23131== Copyright (C) 2002-2010, and GNU GPL'd, by Julian Seward et al.
+==23131== Using Valgrind-3.6.1 and LibVEX; rerun with -h for copyright info
+==23131== Command: ./clipsync.exe conf.xml
+==23131==
+Clipsync started
+Peer connected
+Accept sent to peer
+Accept from peer clover2 verified
+Peer clover2 verified.
+==23131==
+==23131== HEAP SUMMARY:
+==23131==     in use at exit: 131,614 bytes in 2,879 blocks
+==23131==   total heap usage: 995,956 allocs, 993,077 frees, 857,337,345 bytes allocated
+==23131==
+==23131== LEAK SUMMARY:
+==23131==    definitely lost: 0 bytes in 0 blocks
+==23131==    indirectly lost: 0 bytes in 0 blocks
+==23131==      possibly lost: 14,914 bytes in 341 blocks
+==23131==    still reachable: 116,700 bytes in 2,538 blocks
+==23131==         suppressed: 0 bytes in 0 blocks
+==23131== Rerun with --leak-check=full to see details of leaked memory
+==23131==
+==23131== For counts of detected and suppressed errors, rerun with: -v
+==23131== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 45 from 8)
+\end{verbatim}
+  }
+  \caption{Résultats de Valgrind avec Memcheck sur une durée de 6h30.}
+  \label{fig:memcheck}
+\end{figure}
+
+\begin{figure}[!h]
+  \centering
+  \scriptsize{
+\begin{verbatim}
+--------------------------------------------------------------------------------
+Command: ./clipsync.exe conf.xml Massif arguments:
+--time-unit=B ms_print arguments: massif.out.23135
+--------------------------------------------------------------------------------
+
+
+    KB
+191.5^#
+     |# : : :  @::::   ::                  :::     ::   :         ::::      :@
+     |#:: : :: @:: :   ::                  :: :  ::::  ::@:      ::::::   :::@
+     |#:::::::@@:: ::::::@:::::@::::@@::::::: :::: ::::::@::::::@::::::@:::::@
+     |#:::::::@@:: ::::::@:::::@::::@ ::: ::: :::: ::: ::@::::::@::::::@:::::@
+     |#:::::::@@:: ::::::@:::::@::::@ ::: ::: :::: ::: ::@::::::@::::::@:::::@
+     |#:::::::@@:: ::::::@:::::@::::@ ::: ::: :::: ::: ::@::::::@::::::@:::::@
+     |#:::::::@@:: ::::::@:::::@::::@ ::: ::: :::: ::: ::@::::::@::::::@:::::@
+     |#:::::::@@:: ::::::@:::::@::::@ ::: ::: :::: ::: ::@::::::@::::::@:::::@
+     |#:::::::@@:: ::::::@:::::@::::@ ::: ::: :::: ::: ::@::::::@::::::@:::::@
+     |#:::::::@@:: ::::::@:::::@::::@ ::: ::: :::: ::: ::@::::::@::::::@:::::@
+     |#:::::::@@:: ::::::@:::::@::::@ ::: ::: :::: ::: ::@::::::@::::::@:::::@
+     |#:::::::@@:: ::::::@:::::@::::@ ::: ::: :::: ::: ::@::::::@::::::@:::::@
+     |#:::::::@@:: ::::::@:::::@::::@ ::: ::: :::: ::: ::@::::::@::::::@:::::@
+     |#:::::::@@:: ::::::@:::::@::::@ ::: ::: :::: ::: ::@::::::@::::::@:::::@
+     |#:::::::@@:: ::::::@:::::@::::@ ::: ::: :::: ::: ::@::::::@::::::@:::::@
+     |#:::::::@@:: ::::::@:::::@::::@ ::: ::: :::: ::: ::@::::::@::::::@:::::@
+     |#:::::::@@:: ::::::@:::::@::::@ ::: ::: :::: ::: ::@::::::@::::::@:::::@
+     |#:::::::@@:: ::::::@:::::@::::@ ::: ::: :::: ::: ::@::::::@::::::@:::::@
+     |#:::::::@@:: ::::::@:::::@::::@ ::: ::: :::: ::: ::@::::::@::::::@:::::@
+   0 +----------------------------------------------------------------------->GB
+     0                                                                   1.610
+
+Number of snapshots: 82
+ Detailed snapshots: [1 (peak), 9, 10, 20, 26, 32, 51, 61, 71, 81]
+\end{verbatim}}
+    \caption{Résultats de Valgrind avec Massif sur une durée de 6h30.}
+    \label{fig:massif}
+\end{figure}
 \section{Analyse des fonctionnalités présentes et
 futures}
 Le logiciel produit permet de synchroniser du texte présent dans le
