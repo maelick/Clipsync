@@ -10,18 +10,18 @@ La seconde reprend les solutions \emph{potentiellement légères} \emph{i.e.}
 qui sont des logiciels qui \emph{a priori} conviendraient comme solution
 au problème.
 
-Tout d'abord seront étudiés un ensemble de logiciels et protocoles
+Tout d'abord sont étudiés un ensemble de logiciels et protocoles
 donnés comme mots-clés par le directeur de projet au début de celui-ci.
-Ceux-ci sont principalement liés à des technologies lourdes et seront
+Ceux-ci sont principalement liés à des technologies lourdes et sont
 majoritairement ceux entrant dans la partie des solutions lourdes. Les
-autres solutions lourdes seront surtout des solutions plus conventionnelles
+autres solutions lourdes sont surtout des solutions plus conventionnelles
 comme l'échange d'e-mails ou le partage de fichiers.
 
 \section{Solutions lourdes}
-Les solutions étudiées dans cette section seront d'abord l'échange
+Les solutions étudiées dans cette section sont d'abord l'échange
 d'e-mails, l'utilisation d'un serveur \emph{FTP} (File Transfer Protocol),
 le partage de fichiers et les outils de travail collaboratif.
-Les autres solutions étudiées seront \emph{Remote Desktop Service},
+Les autres solutions étudiées sont \emph{Remote Desktop Service},
 \emph{VNC}, \emph{Citrix XenApp}, la technologie \emph{NX} et
 \emph{ClusterSSH}. La comparaison de ces solutions est résumée
 dans la table \ref{tbl:comp_lourd}.
@@ -29,7 +29,7 @@ dans la table \ref{tbl:comp_lourd}.
 \subsection{Échange d'e-mails}
 Une première solution qui vient rapidement à l'esprit est l'utilisation
 du courrier électronique. Il est en effet facile d'échanger du texte ou
-un fichier quelconque entre deux machines en utilisation celui-ci.
+un fichier quelconque entre deux machines en utilisant celui-ci.
 Par exemple il suffit simplement d'envoyer à sa propre adresse
 le texte à copier/coller ou bien de joindre le fichier que l'on désire
 transférer. Cette solution à l'avantage d'être utilisable sur n'importe
@@ -54,15 +54,15 @@ en plus apporter une perte de performances si l'on dispose d'une
 connexion à faible débit\footnote{Ce qui est actuellement le cas en Belgique
 ainsi que dans la plus grande partie du monde où la fibre optique et
 les connexions symétriques sont peu répandues}.
-L'utilisation d'Internet sera donc écartée par
+L'utilisation d'Internet est donc écartée par
 la suite pour ces raisons et seule l'utilisation sur un réseau local
-sera considérée.
+est considérée.
 
 \subsection{Utilisation d'un serveur FTP}
 Un moyen de faire du copier/coller entre plusieurs plateformes
 est l'utilisation d'un serveur FTP. Pour cela il faut qu'un
 serveur soit installé sur le réseau local. De même chaque client
-devra disposer d'un client FTP. Sur Unix il est aussi possible de se passer
+doit disposer d'un client FTP. Sur Unix il est aussi possible de se passer
 d'un serveur FTP et d'utiliser un serveur \emph{SSH} (Secure Shell Client),
 le protocole \emph{SFTP} (SSH File Transfer Protocol) permettant
 d'utiliser un serveur SSH à la manière d'un serveur FTP sécurisé.
@@ -85,15 +85,15 @@ Une alternative peut aussi être l'utilisation de SSH et \emph{SSHFs}
 (SSH Filesystem qui permet de monter un dossier sur une machine distante
 comme si c'était un périphérique et qui repose sur SFTP). Le partage de
 fichiers de Windows n'étant pas compatible sous Unix et \emph{vice versa},
-l'utilisation de \emph{Samba} \cite{samba} sera obligatoire s'il est nécessaire
-de supporter ces deux mondes. Cette solution présente aussi les mêmes
-désavantages que l'utilisation de FTP.
+l'utilisation de \emph{Samba} \cite{samba} reste obligatoire s'il est
+nécessaire de supporter ces deux mondes. Cette solution présente aussi les
+mêmes désavantages que l'utilisation de FTP.
 
 \subsection{Outils de travail collaboratif}
 Ces outils permettent de travailler à distance sur un document de manière
 collaborative. Bien souvent ces outils s'utilisent à travers une interface
 web et permettent de voir les modifications apportées au document en temps
-réel. Ces outils peuvent dnc être utiliés comme méthode pour faire du CCMP
+réel. Ces outils peuvent donc être utiliés comme méthode pour faire du CCMP
 en utilisant un document collaboratif comme presse-papier.
 Etherpad\cite{etherpad} est un de ces outils et à l'avantage d'être
 open-source depuis son rachat par Google.
@@ -296,8 +296,8 @@ Remote Clip semble donc être le logiciel répondant à toutes les
 exigences requises mais contrairement aux solutions citées plus haut,
 le projet ne semble plus actif. En effet la dernière version du logiciel
 est datée de juillet 2002. Cela signifie que de potentielles failles
-de sécurité ne seront pas corrigées et que le logiciel ne sera pas amélioré.
-Bien que cela ne soit pas réellement directement handicapant, il
+de sécurité ne seront pas corrigées et que le logiciel ne sera plus amélioré.
+Bien que cela ne soit pas directement handicapant, il
 peut malgré tout être utile d'avoir un logiciel maintenu. Par exemple
 le manque d'adresse IPv4 et le passage à l'IPv6 peuvent être une bonne
 motivation pour avoir une solution à jour.
