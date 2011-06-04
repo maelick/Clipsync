@@ -1,5 +1,5 @@
 # Options
-DEBUG=yes
+DEBUG=no
 CC=g++
 ifeq ($(DEBUG), yes)
 	CFLAGS=-g
