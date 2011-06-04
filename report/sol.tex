@@ -126,7 +126,7 @@ La seconde a les avantages et inconvénients suivants:
 \item Inconvénients:
   \begin{itemize}
   \item Faible tolérance aux erreurs: impossibilité de récupérer le
-    presse-papier d'un pair ayant quitté le réseau.
+    pres\-se-pa\-pier d'un pair ayant quitté le réseau.
   \item Si plusieurs collers ont lieu les uns à la suite des autres, il faudra
     demander plusieurs fois la même donnée au pair détenant le presse-papier.\\
   \end{itemize}
@@ -258,7 +258,8 @@ modifier son contenu, un système d'authentification doit être mis en place.
 Celui-ci permet de s'assurer qu'aucun utilisateur non désiré puisse accéder au
 presse-papier.
 
-Ce système d'authentification est basé sur le protocole de Needham-Schroeder
+Ce système d'authentification est basé sur le protocole de
+Need\-ham-Schroe\-der
 \cite{1978Needham} permettant l'échange sécurisé de clés de chiffrement
 en utilisant une autorité de confiance. Ici cependant l'autorité de confiance
 est l'utilisateur ayant au préalable configuré le logiciel.
@@ -341,7 +342,7 @@ Ceux-ci sont décrits en utilisant la syntaxe suivant:
 \begin{verbatim}
 MSG <SP> <VAR1> <SP> <VAR2> ... <SP> <VARN> <CRLF>
 \end{verbatim}
-MSG définit le type du message. Celui-ci contient $N$ variables
+MSG définit le type du message. Celui-ci contient $N$ va\-ria\-bles
 <VAR1>, <VAR2>, $\ldots$, <VARN>. Chacune est séparée par un espace (<SP>)
 et le message se termine par un retour chariot (<CRLF>). Chaque variable est
 ensuite décrite et le type de messages pouvant être reçu comme réponse est
@@ -386,7 +387,7 @@ ACCEPT <SP> <CHALLENGE> <CRLF>
 \item[Variable CHALLENGE:] le challenge reçu dans le message JOIN
 \item[Réponse:] Si le challenge ne correspond pas (\emph{i.e.} n'a pas été
   incrémenté de un et l'authentification a échoué), alors un KO est envoyé
-  pour fermer la connexion.
+  pour fermer la con\-ne\-xion.
 \end{description}
 
 \hrulefill
@@ -420,6 +421,7 @@ OK <CRLF>
 \hrulefill
 
 \subsubsection*{DATA}
+\label{msg:data_p2p}
 Un message de type DATA permet d'envoyer le contenu du presse-papier.
 Le contenu presse-papier peut être fragmenté et être envoyé dans plusieurs
 messages DATA. Il n'est cependant pas
@@ -429,7 +431,8 @@ dans lequel ils ont été envoyés. De même l'implémentation du protocole doit
 s'assurer qu'un pair n'envoie pas simultanément deux données à un même autre
 pair.
 \begin{verbatim}
-DATA <SP> <TYPE> <SP> <MORE> <SP> <LENGTH> <SP> <CONTENT> <CRLF>
+DATA <SP> <TYPE> <SP> <MORE> <SP> <LENGTH> <SP>
+  <CONTENT> <CRLF>
 \end{verbatim}
 \begin{description}
 \item[Variable TYPE:] cette variable permet de préciser le type
