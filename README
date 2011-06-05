@@ -41,10 +41,12 @@ For both see below
 === XML Configuration ===
 The XML file can be generated with the script clipsync_genconfig shipped
 with Clipsync. The script must have passed as parameter the peer name,
-the group name and the network interface. Optional arguments are
-port, broadcast port, local port and password and salt length (which
-are pseudo-random generated string). The file is printed on stdout
-and so must be redirected to a file.
+the group name and the network interface. Peer name and group name
+must be composed from alphanumerical characters only.
+
+Optional arguments are port, broadcast port, local port and password
+and salt length (which are pseudo-random generated string). The file
+is printed on stdout and so must be redirected to a file.
 
 The different XML markup used:
 - net_frontend
