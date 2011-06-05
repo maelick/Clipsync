@@ -1,8 +1,8 @@
 \chapter{Implémentation de la solution proposée}
 \renewcommand{\leftmark}{\thechapter.~~Implémentation de la solution proposée}
 \label{chap:implem}
-Ce chapitre justifie premièrement les choix qui fait avant et
-pendant l'implémentationde de l'architecture baptisée \emph{Clipsync}.
+Ce chapitre justifie premièrement les choix fait avant et
+pendant l'implémentation de de l'architecture baptisée \emph{Clipsync}.
 Ensuite une présentation de l'utilisation des
 logiciels produits est faite. Après des vérifications de performances sont
 effectuées sur ces logiciels et enfin les faiblesses du logiciel sont mises
@@ -23,9 +23,9 @@ et servent uniquement d'interface entre l'utilisateur et le client P2P.
 
 La librairie POCO\cite{poco} a été utilisée principalement comme bibliothèque
 pour la manipulation de sockets portables. Ceci permet d'avoir une
-compatibilité théorique avec Microsoft Windows, bien que celle-ci n'a pas
-été testée. De plus POCO offrant un grand nombre de service, la librairie
-a aussi été utilisée pour la gestion des threads et des timers, la
+compatibilité théorique avec Microsoft Windows, bien que celle-ci n'ait pas
+été testée. De plus POCO offrant un grand nombre de services, la librairie
+a aussi été utilisée pour la gestion des threads et des timers, pour la
 configuration du logiciel grâce à un fichier XML, pour la protection de
 zones critiques avec mutex, pour la génération de
 nombres pseudo-aléatoires et pour la cryptographie. L'algorithme de chiffrement
@@ -54,7 +54,7 @@ d'avoir les librairies et outils suivants:
 \item GNU Make: \url{http://www.gnu.org/software/make/}
 \item POCO version 1.3.6 minimum: \url{http://pocoproject.org/}
 \item Python 2.6 ou 2.7: \url{http://www.python.org/}
-\item PyGTK et GTK version 2: \url{http://www.pygtk.org/}
+\item PyGTK et GTK version 2.1 ou supérieur: \url{http://www.pygtk.org/}
 \item Doxygen peut être optionnellement installé pour générer la documentation
   du projet: \url{http://www.stack.nl/~dimitri/doxygen/}
 \end{itemize}
@@ -81,14 +81,14 @@ et leur description:
     réseau
   \item \emph{use\_ipv6}: booléen servant à indiquer l'utilisation d'IPv6.
     Cette fonctionnalité n'est cependant pas disponible pour le moment et
-    l'option a seulement été ajoutée pour l'évolution future du loigiciel.
+    l'option a seulement été ajoutée pour l'évolution future du logiciel.
   \item \emph{port}: port TCP utilisé pour écouter les connexions TCP
     entrantes. C'est sur ce port que le pair sera contacté par les autres
     pairs du réseau.
   \item \emph{bcast\_port}: port UDP utilisé pour l'envoi et la réception de
     messages broadcast.
-  \item \emph{bcast\_interval}: interval en millisecondes utilisé pour l'envoi
-    de messages broadcast.
+  \item \emph{bcast\_interval}: intervalle en millisecondes utilisé pour
+    l'envoi de messages broadcast.
   \item \emph{peer\_name}: nom servant à identifier ce pair sur le réseau et
     devant être unique pour ce pair.
   \item \emph{group}: nom du groupe de pairs. Chaque pair du réseau devra
@@ -143,7 +143,7 @@ Pour cela deux instances de Clipsync ont été lancées pendant une durée
 de 6h30. Durant cette exécution, un script envoyant des données aléatoires
 à Clipsync via Shellclip a été utilisé. Il se connecte régulièrement, avec
 un intervalle variant entre une et dix secondes, à une des deux instances et
-envoe un contenu aléatoire (de taille variant entre 10 et 1000 bytes).
+envoie un contenu aléatoire (de taille variant entre 10 et 1000 bytes).
 
 La première instance a été lancée en utilisant l'outil
 Memcheck de Valgrind dont le résultat est présent dans la figure
@@ -261,21 +261,21 @@ gérant l'historique du presse-papier et ceux-ci sont théoriquement compatibles
 avec Clipsync\footnote{Des tests ont été effectuées avec XFCE-Clipman et
 confirment cette hypothèse.}. Dés lors il est possible de gérer l'historique
 du presse-papier en installant un tel outil sur chaque machine et d'utiliser
-Clipsync uniquement pour synchroniser la donnée se situant réellemet dans
+Clipsync uniquement pour synchroniser la donnée se situant réellementt dans
 le presse-papier du système.
 
 Une autre amélioration à prendre en compte assez rapidement est le support
 de l'IPv6. En effet le fichier configuration permet d'activer IPv6 mais
 cette option ne fonctionne pas. Ce problème vient du fait que l'adresse
 de broadcast est récupérée via POCO à partir du nom de l'interface réseau
-fournie dans le fichier de configuration. Cependant une interface n'ayant
+fournie dans le fichier de configuration. Cependant, une interface n'ayant
 pas d'adresse de broadcast en IPv6, Clipsync sera incapable de trouver
 cette adresse de broadcast et ne peut donc fonctionner. Il sera donc nécessaire
 d'adapter le logiciel en utilisant par exemple plutôt le multicast que le
 broadcast.
 
 Bien que la compression et le support des images soient deux fonctionnalités
-pouvant améliorer Clipsync et lui donner une plue value importante, le passage
+pouvant améliorer Clipsync et lui donner une plus value importante, le passage
 à l'IPv6 est cependant un problème d'actualité assez urgent. Pour cette
 raison le support de l'IPv6 est prioritaire en comparaison à l'ajout des
 deux fonctionnalités précédemment citées. Ceci permettra ainsi à Clipsync
@@ -286,7 +286,7 @@ Enfin à plus long terme, il sera certainement intéressant de revoir la
 structure du logiciel afin qu'il puisse rester facile à maintenir.
 Une de ces améliorations pourrait être l'utilisation de \emph{Zeroconf}
 \footnote{Ensemble de protocoles dont le but est de fournir des services
-d'auto-configuration permettant entre autre de découvrir les services
+d'auto-configuration permettant entre autres de découvrir les services
 disponibles sur un réseau local.} pouvant remplacer le système de
 broadcast mis en place en utilisant une implémentation libre telle
 qu'\emph{Avahi}\cite{avahi} ou \emph{Bonjour}\cite{bonjour}.

@@ -83,7 +83,7 @@ il est implémenté nativement via le protocole SMB. Sous Unix le protocole
 \emph{NFS} (Network File System) est sans doute le plus répandu.
 Une alternative peut aussi être l'utilisation de SSH et \emph{SSHFs}
 (SSH Filesystem qui permet de monter un dossier sur une machine distante
-comme si c'était un périphérique et qui repose sur SFTP). Le partage de
+de manière semblable à un périphérique et qui repose sur SFTP). Le partage de
 fichiers de Windows n'étant pas compatible sous Unix et \emph{vice versa},
 l'utilisation de \emph{Samba} \cite{samba} reste obligatoire s'il est
 nécessaire de supporter ces deux mondes. Cette solution présente aussi les
@@ -95,9 +95,9 @@ collaborative. Bien souvent ces outils s'utilisent à travers une interface
 web et permettent de voir les modifications apportées au document en temps
 réel. Ces outils peuvent donc être utiliés comme méthode pour faire du CCMP
 en utilisant un document collaboratif comme presse-papier.
-Etherpad\cite{etherpad} est un de ces outils et à l'avantage d'être
+Etherpad\cite{etherpad} est un de ces outils et a l'avantage d'être
 open-source depuis son rachat par Google.
-Cependant, aussi bien Etherpad que tout autre logiciel de ce genre, ils ne
+Cependant, aussi bien Etherpad que tout autre logiciel de ce genre, ne
 permettent pas de faire du CCMP avec une configuration minimale et sont
 clairement une solution lourde pour celui qui n'a pas besoin d'utiliser un
 outil de travail collaboratif.
@@ -144,7 +144,7 @@ affiché, XenApp fonctionne de manière semblable à \emph{X11}
 graphique standard de Unix fonctionnant sous forme de serveur et où
 chaque application graphique est un client}. Cependant ceci ne l'empêche
 pas de souffrir de problèmes déjà évoqués, tels un overhead important lorsque
-l'on veut faire du copier/coller et l'utilisation de license propriétaire.
+l'on veut faire du copier/coller et l'utilisation de licence propriétaire.
 
 \subsection{Technologie NX}
 NX \cite{wiki:nx} est un protocole d'accès distant à X11 reposant sur un
@@ -155,7 +155,7 @@ permet bien plus que le copier/coller et souffre donc des mêmes problèmes.
 
 \subsection{ClusterSSH}
 ClusterSSH\cite{clusterssh} est un outil permettant de gérer plusieurs
-sessions SSH dans un seul terminal. Il lance ainsi sur chaque hote la même
+sessions SSH dans un seul terminal. Il lance ainsi sur chaque hôte la même
 commande ce qui permet par exemple de configurer plusieurs serveurs de la
 même manière. Son premier désavantage est la nécessité d'installer et de
 configurer un serveur SSH sur chaque machine. Deuxièmement il ne permet
@@ -169,7 +169,7 @@ En résumé, toutes ces solutions lourdes présentées reposent
 sur un modèle client-serveur et sont conçues, soit pour fournir un service
 qui n'est pas prévu pour être utilisé afin de réaliser du copier/coller,
 soit pour être utilisées comme bureau virtuel distant. Certaines sont
-plus simples que d'autres à mettre en oeuvre; d'autres sont plus sécurisées,
+plus simples que d'autres à mettre en œuvre; d'autres sont plus sécurisées,
 tandis que d'autres sont propriétaires ou visent un système d'exploitation
 particulier. Mais elles sont toutes inadaptées pour effectuer
 un copier/coller multi-plateformes simple. Leurs caractéristiques sont résumées
@@ -236,7 +236,7 @@ effet nécessaire d'avoir un navigateur web ouvert et de copier dans une page
 web la donnée du presse-papier pour la récupérer sur une autre machine
 sur la même page web. Une autre critique importante est le manque de
 décentralisation de la solution: il est absurde d'avoir à se connecter à un
-serveur présent aux USA pour échanger de l'information entre deux
+serveur présent aux États-Unis pour échanger de l'information entre deux
 ordinateurs qui sont dans la même pièce. Son dernier défaut majeur est de
 ne pas être basé sur un logiciel libre que tout le monde pourrait télécharger
 et installer sur son propre serveur web, ce qui aurait permis de résoudre
@@ -258,9 +258,9 @@ Clipboard Share \cite{clipshare} est un autre logiciel qui permet de faire
 du CCMP. La connexion est chiffrée et il est possible de recevoir
 du contenu en provenance d'un envoyeur de confiance. Il est écrit en C\#,
 requiert \emph{Microsoft .NET 3.5} ainsi que \emph{PNRP} (\emph{Peer Name
-Resolution Protocol}), un protocole \emph{P2P} (Peer-to-Peer, pair à pair en
-français, le principe de ce type de réseaux est décrit dans la section
-\ref{sec:p2p} à la page \pageref{sec:p2p}) propriétaire de Microsoft,
+Resolution Protocol}), un protocole \emph{P2P}\footnote{Peer-to-Peer, pair à
+pair en français, le principe de ce type de réseaux est décrit dans la section
+\ref{sec:p2p} à la page \pageref{sec:p2p}} propriétaire de Microsoft,
 ce qui signifie que le logiciel ne tourne que sur Windows XP SP2 ou plus
 récent \cite{wiki:pnrp}. Bien qu'il propose des fonctionnalités intéressantes
 et réponde au critère de logiciel léger, il ne convient pas car il ne vise
@@ -276,7 +276,7 @@ d'authentification ne semble être mis en oeuvre pour sécuriser le système.
 Ensuite il ne semble pas certain que le programme tourne sur tous les Unix,
 \emph{e.g.} il n'est fait mention nulle part d'une compatibilité assurée
 avec \emph{MacOS}. Enfin, il faut tout de même noter que The Network
-Clipboard utilise la version 3 de \emph{Qt}\footnote{framework C++ utilisé
+Clipboard utilise la version 3 de \emph{Qt}\footnote{Framework C++ utilisé
 entre autre dans le projet \emph{KDE}} et qui, avant la version 4, n'était
 libre que sous Linux \cite{wiki:qt}.
 Le programme repose donc sur une librairie propriétaire sous les autres

@@ -1,6 +1,6 @@
 \chapter{Solution proposée}
 \renewcommand{\leftmark}{\thechapter.~~Solution proposée}
-Après analyse des différentes solutions existantespour faire du CCMP dans
+Après analyse des différentes solutions existantes pour faire du CCMP dans
 le chapitre précédent, la solution jugée la plus efficace
 est Remote Clip, celle-ci proposant une architecture P2P adéquate et un
 niveau de sécurité correct. Pour ces raisons, certaines idées mises en avant
@@ -14,7 +14,7 @@ de rappeler quels sont les principes de base d'une architecture P2P.
 Habituellement, une architecture client-serveur est utilisée lorsqu'il
 faut fournir un service à un ensemble de machines connectées en réseau,
 c'est-à-dire que chaque client va se connecter à un (ou parfois plusieurs)
-serveur central qui s'occupera de fournir le service désiré. Par opposition à
+serveur central qui se chargera de fournir le service désiré. Par opposition à
 ce mode de fonctionnement centralisé, un réseau organisé en pair-à-pair
 permet de se passer de serveur central, chaque client jouant à la fois le rôle
 de client et de serveur. La figure \ref{fig:p2p} illustre la différence
@@ -33,13 +33,13 @@ De manière plus précise les systèmes P2P sont définis dans \cite{AS04} comme
 \end{quote}
 
 Les difficultés potentielles à mettre en évidence dans ce genre de systèmes
-sont la gestion des va-et-vient de clients et la tolérance aux erreurs
-sans l'aide de serveur central, et tout en minimisant la charge sur le réseau,
+sont la gestion du va-et-vient de clients et la tolérance aux erreurs
+sans l'aide de serveur central, et la minimisation de la charge sur le réseau,
 due à cette gestion. Il faut cependant noter que l'importance de la tolérance
 aux erreurs est tout de même assez minime dans le contexte du copier/coller.
 Les données stockées sont en général destinées à être utilisées à court terme
 et non pas à être stockées de manière persistante. De même le nombre de pairs
-est normalement peu élevé, et donc le nombre de va-et-vient n'est pas aussi
+est normalement peu élevé, et donc le va-et-vient n'est pas aussi
 important que sur des systèmes à grande échelle.
 
 Une remarque supplémentaire à faire est qu'une différence est souvent faite
@@ -50,7 +50,7 @@ efficaces. Le réseau ici étant censé être de taille relativement petite
 et le contenu changeant très rapidement, il n'est pas nécessaire de structurer
 le réseau. En effet, le fait de structurer le réseau, en utilisant par exemple
 une table de hashage distribuée, a comme intérêt d'avoir une complexité
-algorithmique sous-linéaire en fonction du nombre de pairs présent dans
+algorithmique sous-linéaire en fonction du nombre de pairs présents dans
 le réseau. Ici la taille du réseau étant fortement réduite, cette
 complexité a peu d'impact sur les performances du logiciel. Le fait de ne
 pas utiliser une table de hashage distribuée permet donc d'avoir un protocole
@@ -101,14 +101,14 @@ La première manière de faire a les avantages et inconvénients suivants:
   \item Possibilité de garder une copie du presse-papier sur chaque pair.
   \item Tolérance aux erreurs dans le cas où le pair détenant le presse-papier
     aurait quitté le réseau.
-  \item Absence de communications réseaux en cas de multiples coller.
+  \item Absence de communications réseaux en cas de multiples collers.
   \end{itemize}
 \item Inconvénients:
   \begin{itemize}
   \item Consommation de bande passante accrue dans le cas où des copiers
     sont effectués fréquemment car il faudra envoyer la même donnée à chacun
     des pairs qui ne feront peut être pas forcément de coller. De plus la
-    consommation de bande passante dépend du nombre de pair présent sur le
+    consommation de bande passante dépend du nombre de pair présents sur le
     réseau (même si celui-ci reste faible).
   \end{itemize}
 \end{itemize}
@@ -138,7 +138,7 @@ savoir ce qu'est X Window et comment ce logiciel fonctionne\cite{nye1992xlib}.
 X est un standard pour les systèmes d'exploitations basés sur Unix permettant
 d'afficher des éléments graphiques sur un écran plutôt qu'un terminal.
 Il est principalement responsable de la couche la plus basse des systèmes
-de fenêtrages de la majorité des systèmes Unix. Son fonctionnement est basé
+de fenêtrage de la majorité des systèmes Unix. Son fonctionnement est basé
 sur une architecture client-serveur où X Window est le logiciel serveur
 et chaque application graphique est un client. Lorsqu'un copier est réalisé au
 sein d'une application, le client (\emph{i.e.} la fenêtre) notifie le serveur X
@@ -151,21 +151,21 @@ a fait le dernier coller. Il peut ensuite demander à ce client de délivrer
 le contenu de son presse-papier. Il faut noter que si le client responsable
 du presse-papier a disparu, \emph{i.e.} si la fenêtre a été fermée, et qu'aucun
 copier n'a été effectué depuis la fermeture du client, alors il est
-impossible de récupérer la donnée et le presse-papier est considéré comme vide.
+impossible de récupérer la donnée et le presse-papier est considéré comme vide
 \footnote{Il faut cependant noter que si un logiciel d'historique de
 presse-papier est utilisé, c'est le gestionnaire de presse-papier qui est
-responsable de la donnée copiée. Il est donc normal si celle-ci est toujours
-disponible après avoir fermé la fenêtre dans laquelle la donnée a été
-initialement copiée.}
+responsable de la donnée copiée. Il est donc normal si le presse-papier est
+toujours disponible après avoir fermé la fenêtre dans laquelle la donnée a été
+initialement copiée.}.
 En fin de compte, il est clair que la description du fonctionnement de X Window
 est la deuxième solution décrite précédemment.
 
 \subsubsection{Choix d'une solution pour la gestion et
 synchronisation du presse-papier}
 Il faut donc faire un choix entre une de ces deux solutions. Un des critères
-définit au début de ce travail étant de cibler Unix, il semble idéal de se
+défini au début de ce travail étant de cibler Unix, il semble idéal de se
 baser sur X Window pour implémenter une nouvelle solution. De même, Remote
-Clip, ayant été décrit comme la meilleure solution rencontrée, fonctionne
+Clip, qui a été décrit comme la meilleure solution rencontrée, fonctionne
 de la même manière. Cependant en fin compte, c'est la première solution
 envoyant le presse-papier lors de la copie qui est choisie.
 Celle-ci est plus intuitive et a surtout l'avantage d'être
@@ -174,7 +174,7 @@ solution idéale, un intérêt de réimplémenter une nouvelle solution est
 d'améliorer ses fonctionnalités, en améliorant ici la tolérance aux erreurs.
 Un dernier avantage qui est discuté dans le chapitre \ref{chap:implem}
 est le fait qu'envoyer la donnée à chaque pair à chaque copier facilite
-la gestion d'historique synchornisé du presse-papier sans avoir à ajouter
+la gestion d'historique synchronisé du presse-papier sans avoir à ajouter
 cette fonctionnalité directement dans le logiciel nouvellement produit.
 
 \subsubsection{Rejoindre le réseau}
@@ -193,9 +193,9 @@ rechercher les pairs désirant rejoindre le réseau. Cette solution sera celle
 utilisée, celle-ci permettant de minimiser le nombres de paramètres que devra
 configurer l'utilisateur.
 
-Pour cela, il faut que chaque pair envoie à interval régulier un message
+Pour cela, il faut que chaque pair envoie à intervalle régulier un message
 en broadcast, sur le réseau local, permettant d'identifier le groupe de pairs
-(via un nom choisit par l'utilisateur)
+(via un nom choisi par l'utilisateur)
 auquel il appartient ou veut appartenir. Tout pair appartenant au groupe
 (\emph{i.e.} dont le groupe possède le même nom) et
 recevant un message doit alors contacter le pair ayant envoyé le message en
@@ -207,13 +207,13 @@ les membres du groupe (\emph{i.e.} les machines de l'utilisateur présentes
 sur le réseau local) ont accès au presse-papier. Pour cela un
 mécanisme d'authentification est décrit dans la suite de ce chapitre.
 
-Il faut cependant faire attention à un
+Il faut cependant prêter attention à un
 problème: le nombre de connexions TCP ouvertes peut devenir une charge
 importante pour le réseau. En effet pour un groupe de $n$ pair, $n-1$
 connexions sera ouverte pour chaque pair. Le nombre de connexions serait donc
 en $O(n^2)$. Cependant le réseau P2P étant limité à quelques pairs dans le
 cas du CCMP, ceci n'est pas handicapant.
-De même afin d'ouvrir plusieurs fois une connexion TCP avec un pair déjà
+De même afin d'ouvrir plusieurs fois une connexion TCP avec un pairs déjà
 connu, il faut gérer une table des pairs dans laquelle sera ajouté un
 pair identifié. Les figures \ref{fig:broadcast} et \ref{fig:connections}
 illustrent par des diagrammes d'états comment un pair se comporte pour
@@ -240,7 +240,7 @@ contacter les autres pairs du réseaux.
 Lorsqu'un pair quitte le réseau, il doit notifier l'ensemble des autres
 pairs de son départ. Une fois ceci fait, il peut fermer chaque connexion
 ouverte avec chacun des pairs. En revanche il se peut qu'un pair quitte
-le réseau sans pouvoir notifier les pairs de son départ, \emph{e.g.}
+le réseau sans pouvoir notifier son départ aux pairs, \emph{e.g.}
 à cause d'une déconnexion du lien physique. Pour cela un mécanisme
 de \emph{keep alive} doit être utilisé. Il faut que chaque pair envoie
 de manière régulière un message sur chaque connexion ouverte, même en cas
@@ -255,8 +255,8 @@ de broadcast.
 Afin d'assurer que le contenu du presse papier reste confidentiel à son
 utilisateur et qu'aucune personne présente sur le réseau ne soit capable de
 modifier son contenu, un système d'authentification doit être mis en place.
-Celui-ci permet de s'assurer qu'aucun utilisateur non désiré puisse accéder au
-presse-papier.
+Celui-ci permet de s'assurer qu'aucun utilisateur non désiré ne puisse accéder
+au presse-papier.
 
 Ce système d'authentification est basé sur le protocole de
 Need\-ham-Schroe\-der
@@ -281,8 +281,8 @@ Le comportement pour le pair ayant initié le contact est le même.
     de la session et les autres noeuds représentent différents états. Les
     transitions sont déclenchées si la condition entre crochets et les actions
     présentes ensuites sont exécutées. Ce diagramme définit aussi bien le
-    comportement du pair ayant initié la connexion TCP que celui l'ayant
-    accepté.}
+    comportement du pair ayant initié la connexion TCP que celui du pair
+    l'ayant acceptée.}
   \label{fig:peerhandler}
 \end{figure}
 
@@ -296,7 +296,7 @@ le protocole mis en place (\emph{cf.} page \pageref{msg:data_p2p}).
 
 \subsection{Client local}
 Le client P2P est le \emph{front-end} avec le réseau, il est chargé
-de communiquer avec les pairs du réseau afin de les découvrir et savoir
+de communiquer avec les pairs du réseau afin de les découvrir et de savoir
 lequel détient le presse-papier. Le front-end avec l'utilisateur
 est en revanche le client local. Celui-ci tourne sur le même ordinateur
 que le client P2P, se charge d'envoyer le contenu du presse-papier
@@ -309,13 +309,13 @@ client local a changé le contenu du presse-papier.
 Cependant, contrairement au client P2P, il peut y avoir plusieurs clients
 locaux tournant sur le même ordinateur. Chacun d'entre eux étant destiné
 à un environnement précis. Dans ce projet, seront développés deux types
-de clients différents:
+de client différents:
 \begin{itemize}
 \item Un client tournant en tâche de fond (comme \emph{daemon}) et
   synchronisant le contenu du presse-papier de X Window.
 \item Un client gérant le copier/coller dans un terminal. L'intérêt de ce
   client est d'envoyer des résultats de commandes Unix directement via
-  un pipe. Ceci étant plus intuitif que la copie via le système de fenêtrage
+  un pipe, ceci étant plus intuitif que la copie via le système de fenêtrage
   lorsque l'on travaille en console.
   Il est composé de deux logiciels:
   \begin{itemize}
@@ -331,14 +331,14 @@ Trois protocoles sont à définir afin de faire fonctionner l'application
 correctement. Le premier est celui permettant de découvrir des pairs grâce au
 broadcast. Le second est celui utilisé sur le réseau par les clients
 P2P afin de communiquer entre eux. Le dernier est utilisé entre le client
-P2P et les clients locaux afin de se notifier mutuellement de changements
+P2P et les clients locaux afin de se notifier mutuellement des changements
 dans le presse papier. De même ils doivent prendre en compte
 l'aspect sécurité, en proposant un moyen d'identification.
 Ces trois protocoles seront appelés respectivement protocole broadcast,
 protocole P2P et protocole local.
 
-Les protocoles sont caractérisés par un ensemble de types de messages.
-Ceux-ci sont décrits en utilisant la syntaxe suivant:
+Les protocoles sont caractérisés par un ensemble de types de message.
+Ceux-ci sont décrits en utilisant la syntaxe suivante:
 \begin{verbatim}
 MSG <SP> <VAR1> <SP> <VAR2> ... <SP> <VARN> <CRLF>
 \end{verbatim}
@@ -357,7 +357,7 @@ JOIN <SP> <NAME> <SP> <GROUP> <CRLF>
 \end{verbatim}
 \begin{description}
 \item[Variable NAME:] identifiant du pair envoyant le message.
-\item[Variable GROUP:] nom du groupe de pairs définit par l'utilisateur
+\item[Variable GROUP:] nom du groupe de pairs défini par l'utilisateur
   lors de la configuration du logiciel.
 \item[Réponse:] si le pair n'est pas déjà présent dans la table des pairs,
   il faut ouvrir une connexion TCP avec celui-ci en utilisant le protocole P2P.
