@@ -129,7 +129,7 @@ int getInt(string s)
 
 void PeerHandler::treatMsg(string msg)
 {
-    RegularExpression joinMsg("^JOIN ([a-z0-9]+) (-?[0-9]+).*",
+    RegularExpression joinMsg("^JOIN ([A-Za-z0-9]+) (-?[0-9]+).*",
                               RegularExpression::RE_DOTALL);
     RegularExpression acceptMsg("^ACCEPT (-?[0-9]+).*",
                                 RegularExpression::RE_DOTALL);

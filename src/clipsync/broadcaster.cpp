@@ -64,7 +64,7 @@ void Broadcaster::run()
 
 void Broadcaster::treatMsg(SocketAddress &src, string msg)
 {
-    Poco::RegularExpression re("^JOIN ([a-z0-9]+) ([a-z0-9]+).*",
+    Poco::RegularExpression re("^JOIN ([A-Za-z0-9]+) ([A-Za-z0-9]+).*",
                                Poco::RegularExpression::RE_DOTALL);
     vector<string> v;
     if(re.match(msg)) {

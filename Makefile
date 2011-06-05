@@ -16,7 +16,7 @@ all:
 
 install: all
 	cp $(CLIPSYNC_DIR)/clipsync.exe /usr/bin/clipsync
-	cp $(CLIPSYNC_DIR)/genconfig.py /usr/bin/clipsyns_genconfig
+	cp $(CLIPSYNC_DIR)/genconfig.py /usr/bin/clipsync_genconfig
 	cp $(SHELLCLIP_DIR)/shellcopy.py /usr/bin/shellcopy
 	cp $(SHELLCLIP_DIR)/shellpaste.py /usr/bin/shellpaste
 	cp $(GTKCLIP_DIR)/gtkclip.py /usr/bin/gtkclip
