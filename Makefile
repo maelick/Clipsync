@@ -35,7 +35,6 @@ report:
 
 clean:
 	@(cd $(CLIPSYNC_DIR) && $(MAKE) $@)
-	@(cd $(REPORT_DIR) && $(MAKE) $@)
 
 mrproper: clean
 	@(cd $(CLIPSYNC_DIR) && $(MAKE) $@)
