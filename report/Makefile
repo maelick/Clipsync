@@ -15,6 +15,8 @@ all: $(EXEC)
 report.dvi: fig_p2p.eps umons.eps connections.eps peerhandler.eps broadcast.eps
 	$(LATEX) report.tex
 	$(BIBTEX) report.aux
+	$(LATEX) report.tex
+	$(LATEX) report.tex
 presentation.dvi: ccmp1.eps ccmp2.eps cl1p.eps clipboardmshare.eps netclip1.eps netclip2.eps fig_p2p.eps remoteclip.eps umons.eps
 
 # Rules (cont'd)
@@ -34,4 +36,4 @@ presentation.dvi: ccmp1.eps ccmp2.eps cl1p.eps clipboardmshare.eps netclip1.eps 
 .PHONY: clean
 
 clean:
-	@rm *.dvi *.eps *.log *.toc *.aux *.bbl *.blg *-blx.bib *.nav *.snm *.out
+	@rm -f *.dvi *.eps *.log *.toc *.aux *.bbl *.blg *-blx.bib *.nav *.snm *.out
