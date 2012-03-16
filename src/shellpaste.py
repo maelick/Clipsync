@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Clipsync, clipboard synchronizer
-# Copyright (C) 2011 Maëlick Claes (himself [at] maelick [dot] net)
+# Copyright (C) 2011-2012 Maëlick Claes (himself [at] maelick [dot] net)
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,29 +16,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import random, sys, commands, time
+import sys
+import clipdata
+from clipman import ClipboardManager
 
-def get_random_string(n):
-    """
-    Returns a random string of a given length
-    """
-    s = ""
-    for i in xrange(n):
-        s += chr(random.randrange(26) + 97)
-    return s
-
-def output(port):
-    s = get_random_string(random.randrange(10, 1000))
-    out = commands.getoutput('echo "{0}" | ./shellcopy.py {1}'.format(port, s))
-
-def loop(port):
-    while True:
-        output(port)
-        time.sleep(random.randrange(1, 10))
-
-if __name__ == "__main__":
+def main():
     if len(sys.argv) > 1:
-        loop(sys.argv[1])
+        config_filename = sys.argv[1]
     else:
-        sys.stderr.write("Please specify as argument the port on which to " +
-                         "send the clipboard.\n")
+        config_filename = '~/.clipman'
+    clipman = ClipboardManager((config_filename))
+
+    d = clipman.get_clipboard()
+
+    from twisted.internet import reactor
+    def print_clipboard(clipboard):
+        if clipboard.is_text():
+            print clipboard.get_data()
+        else:
+            sys.stderr.write('Clipboard contains no text data.\n')
+        reactor.stop()
+    d.addCallback(print_clipboard)
+    reactor.run()
+
+if __name__ == '__main__':
+    main()

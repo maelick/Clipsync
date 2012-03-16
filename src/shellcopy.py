@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Clipsync, clipboard synchronizer
-# Copyright (C) 2011 Maëlick Claes (himself [at] maelick [dot] net)
+# Copyright (C) 2011-2012 Maëlick Claes (himself [at] maelick [dot] net)
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,26 +16,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import socket, sys
+import sys
+import clipdata
+from clipman import ClipboardManager
 
-def send(port, data):
-    """
-    Sends some data to a localhost port.
-    """
-    s = socket.socket()
-    s.connect(("localhost", port))
-    s.send("DATA 0 {0} {1}\n".format(len(data), data))
-    s.close()
-
-if __name__ == "__main__":
+def main():
     if len(sys.argv) > 1:
-        try:
-            send(int(sys.argv[1]), sys.stdin.read()[:-1])
-        except KeyboardInterrupt:
-            sys.exit(0)
-        except:
-            sys.stderr.write("Unable to connect\n")
-            sys.exit(1)
+        config_filename = sys.argv[1]
     else:
-        sys.stderr.write("Please specify as argument the port on which to " +
-                         "send the clipboard.\n")
+        config_filename = '~/.clipman'
+
+    data = sys.stdin.read()[:-1]
+    clipman = ClipboardManager((config_filename))
+    d = clipman.set_text(data)
+
+    from twisted.internet import reactor
+    d.addCallback(lambda data: reactor.stop())
+    reactor.run()
+
+if __name__ == '__main__':
+    main()
