@@ -28,10 +28,14 @@ def main():
 
     data = sys.stdin.read()[:-1]
     clipman = ClipboardManager((config_filename))
-    d = clipman.set_text(data)
 
     from twisted.internet import reactor
-    d.addCallback(lambda data: reactor.stop())
+
+    def f():
+        d = clipman.set_text(data)
+        d.addCallback(lambda data: reactor.stop())
+
+    reactor.callLater(0.1, f)
     reactor.run()
 
 if __name__ == '__main__':

@@ -25,6 +25,7 @@ gtk2reactor.install()
 import sys
 import clipdata
 from twisted.internet.defer import Deferred
+from twisted.internet import reactor
 from clipsync import ClipboardManager
 
 class GTKClip(ClipboardManager):
@@ -46,7 +47,7 @@ class GTKClip(ClipboardManager):
         if self.clip.wait_is_image_available():
             set_image = lambda clipboard, image, data: self.set_image(image)
             self.clip.request_image(set_image)
-        gobject.timeout_add(500, self.fetch_clip)
+        reactor.callLater(0.5, self.fetch_clip)
 
     def set_gtkclip(self, data):
         """Updates the GTK clipboard."""
@@ -58,7 +59,7 @@ class GTKClip(ClipboardManager):
                 self.clip.set_img(data)
         d = Deferred()
         d.addCallback(self.set_gtkclip)
-        self.deferred.append(d)
+        self.deferred = d
 
 def main():
     if len(sys.argv) > 1:
@@ -68,7 +69,6 @@ def main():
 
     clipman = GTKClip(config_filename)
 
-    from twisted.internet import reactor
     reactor.run()
 
 if __name__ == '__main__':

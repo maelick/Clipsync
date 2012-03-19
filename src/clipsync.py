@@ -31,7 +31,7 @@ class ClipboardManager:
         self.load_config(config_filename)
         self.clipboard = ''
         self.peers = {}
-        self.deferred = []
+        self.deferred = None
 
         self.factory = PeerFactory(self.name, self.group, self)
         self.discoverer = PeerDiscoverer(self, self.name, self.group,
@@ -99,9 +99,9 @@ class ClipboardManager:
         if not self.clipboard == data:
             print data
             self.clipboard = data
-            for d in self.deferred:
+            if self.deferred:
+                d, self.deferred = self.deferred, None
                 d.callback(self.clipboard)
-            self.deferred = []
             # print "Clipboard set to: {0}".format(data)
             self.send_clipboard(clip_sender)
 
@@ -143,7 +143,6 @@ class ClipboardManager:
         d = Deferred()
         from twisted.internet import reactor
         reactor.callLater(0.5, d.callback, None)
-        # reactor.callWhenRunning(d.callback, None)
         return d
 
     def get_clipboard(self):
@@ -153,7 +152,7 @@ class ClipboardManager:
         if self.clipboard:
             d.callback(self.clipboard)
         else:
-            self.deferred.append(d)
+            self.deferred = d
         return d
 
 class PeerProtocol(NetstringReceiver):
