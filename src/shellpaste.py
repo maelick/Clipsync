@@ -18,7 +18,7 @@
 
 import sys
 import clipdata
-from clipman import ClipboardManager
+from clipsync import ClipboardManager
 
 def main():
     if len(sys.argv) > 1:

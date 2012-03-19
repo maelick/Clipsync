@@ -96,35 +96,54 @@ class ClipboardManager:
         """Updates the clipboard's data received from clip_sender
         peer.
         This will contacts every peers except the sender."""
-        if self.clipboard != data:
+        if not self.clipboard == data:
+            print data
             self.clipboard = data
             for d in self.deferred:
                 d.callback(self.clipboard)
             self.deferred = []
-            print "Clipboard set to: {0}".format(data)
+            # print "Clipboard set to: {0}".format(data)
             self.send_clipboard(clip_sender)
 
     def set_text(self, text):
         """Updates the clipboard with a raw string and sends it to
-        every peers."""
+        every peers.
+        Returns a deferred that will be fired when clipboard will be sent
+        to peers."""
         data = clipdata.Text(text)
+        return self.set_data(data)
+
+    def set_image(self, image):
+        """Updates the clipboard with an image (GTK pixbuf) and sends it
+        to every peers..
+        Returns a deferred that will be fired when clipboard will be sent
+        to peers."""
+        data = clipdata.Image(image.get_has_alpha(),
+                              image.get_bits_per_sample(),
+                              image.get_width(), image.get_height(),
+                              image.get_rowstride(), image.get_pixels())
         return self.set_data(data)
 
     def set_data(self, data):
         """Updates the clipboard with a basic Data (Text or Image),
         encapsulates it into ChecksumedData and/or CompressedData
-        depending of config and sends it to every peers."""
+        depending of config and sends it to every peers.
+        Returns a deferred that will be fired when clipboard will be sent
+        to peers."""
+        use_compression = isinstance(data, clipdata.Image)
         if self.checksum_type:
             data = clipdata.ChecksumedData(self.checksum_type, data, False)
         if self.use_compression and \
-           self.use_compression <= len(data.get_data()):
+           (use_compression or \
+            self.use_compression <= len(data.get_data())):
             data = clipdata.CompressedData(self.compression_type, data,
                                            False)
         self.set_clipboard(data, self)
 
         d = Deferred()
         from twisted.internet import reactor
-        reactor.callLater(1, d.callback, None)
+        reactor.callLater(0.5, d.callback, None)
+        # reactor.callWhenRunning(d.callback, None)
         return d
 
     def get_clipboard(self):

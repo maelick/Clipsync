@@ -197,6 +197,7 @@ class ChecksumedData:
         computed.
         Otherwise it is assumed not to be (and so data is a Data object).
         Raises ValueError if type is unknown or data is invalid."""
+        self.type = type
         if type == 'adler32':
             compute_checksum = zlib.adler32
         elif type == 'crc32':
@@ -218,7 +219,7 @@ class ChecksumedData:
                                                  str(self.data))
 
     def __eq__(self, other):
-        return isinstance(other, CompressedData) and \
+        return isinstance(other, ChecksumedData) and \
                self.type == other.type and self.data == other.data
 
     def __str__(self):
