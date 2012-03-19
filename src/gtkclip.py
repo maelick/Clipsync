@@ -56,7 +56,7 @@ class GTKClip(ClipboardManager):
             if type(data) is str:
                 self.clip.set_text(data, len(data))
             elif isinstance(data, gtk.gdk.Pixbuf):
-                self.clip.set_img(data)
+                self.clip.set_image(data)
         d = Deferred()
         d.addCallback(self.set_gtkclip)
         self.deferred = d
