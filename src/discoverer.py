@@ -39,7 +39,6 @@ class PeerDiscoverer(DatagramProtocol):
         self.transport.joinGroup(self.addr)
         # self.transport.setOutgoingInterface('192.168.2.5')
         LoopingCall(self.send_msg).start(self.interval)
-        print "Protocol started"
 
     def send_msg(self):
         """Sends a single multicast message."""
@@ -54,5 +53,4 @@ class PeerDiscoverer(DatagramProtocol):
             name, group, port = data.split(' ')
             if group == self.group and name != self.name and \
                    not self.clipman.has_peer(name):
-                print "Peer {0} from {1} on port {2}".format(name, host, port)
                 self.clipman.contact_peer(name, host, int(port))

@@ -18,6 +18,8 @@
 
 import sys, os.path, yaml
 import clipdata
+from twisted.python import log
+from twisted.python.logfile import DailyLogFile
 from discoverer import PeerDiscoverer
 from twisted.internet.defer import Deferred
 from twisted.protocols.basic import NetstringReceiver
@@ -32,6 +34,7 @@ class ClipboardManager:
         self.clipboard = ''
         self.peers = {}
         self.deferred = None
+        self.start_logging()
 
         self.factory = PeerFactory(self.name, self.group, self)
         self.discoverer = PeerDiscoverer(self, self.name, self.group,
@@ -44,6 +47,15 @@ class ClipboardManager:
         self.port = port.getHost().port
         reactor.listenMulticast(self.multicast_port, self.discoverer,
                                 listenMultiple=True)
+
+    def start_logging(self):
+        """Starts logging to log file or stdout depending on config."""
+        if self.use_log:
+            if self.log_stdout:
+                log.startLogging(sys.stdout)
+            else:
+                log_file = os.path.expanduser(self.log_file)
+                log.startLogging(DailyLogFile.fromFullPath(log_file))
 
     def load_config(self, filename):
         """Loads configuration file"""
@@ -59,6 +71,11 @@ class ClipboardManager:
             self.use_compression = conf['use_compression']
             self.compression_type = conf['compression_type']
             self.checksum_type = conf['checksum_type']
+            self.use_log = conf['use_log']
+            if self.use_log:
+                self.log_stdout = conf['log_stdout']
+                if not self.log_stdout:
+                    self.log_file = conf['log_file']
 
     def add_peer(self, name, protocol):
         """Adds a peer to the manager and gives a mapping from
@@ -66,12 +83,14 @@ class ClipboardManager:
         can_add_peer = not self.has_peer(name)
         if can_add_peer:
             self.peers[name] = protocol
+            log.msg("Peer {0} added to peer table.".format(name))
         return can_add_peer
 
     def remove_peer(self, name):
         """Removes a peer from the manager.
         The associated connection should be closed before doing this."""
         if self.has_peer(name):
+            log.msg("Peer {0} removed from peer table.".format(name))
             del self.peers[name]
 
     def has_peer(self, name):
@@ -82,6 +101,8 @@ class ClipboardManager:
     def contact_peer(self, name, host, port):
         """Contacts a peer on a specified host and port.
         A new SSL connection is started with the peer."""
+        str = "Contacting peer {0} from {1} on port {2}"
+        log.msg(str.format(name, host, port))
         from twisted.internet import reactor
         reactor.connectTCP(host, port, self.factory)
 
@@ -97,11 +118,12 @@ class ClipboardManager:
         peer.
         This will contacts every peers except the sender."""
         if not self.clipboard == data:
+            msg = "Updates clipboard received from {0}"
+            msg.log(msg.format(clip_sender))
             self.clipboard = data
             if self.deferred:
                 d, self.deferred = self.deferred, None
                 d.callback(self.clipboard)
-            print "Clipboard set to: {0}".format(data)
             self.send_clipboard(clip_sender)
 
     def set_text(self, text):
