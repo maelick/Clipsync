@@ -24,7 +24,7 @@ def main():
     if len(sys.argv) > 1:
         config_filename = sys.argv[1]
     else:
-        config_filename = '~/.clipman'
+        config_filename = '~/.clipman/conf.yml'
     clipman = ClipboardManager((config_filename))
 
     d = clipman.get_clipboard()

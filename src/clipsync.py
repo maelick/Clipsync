@@ -97,12 +97,11 @@ class ClipboardManager:
         peer.
         This will contacts every peers except the sender."""
         if not self.clipboard == data:
-            print data
             self.clipboard = data
             if self.deferred:
                 d, self.deferred = self.deferred, None
                 d.callback(self.clipboard)
-            # print "Clipboard set to: {0}".format(data)
+            print "Clipboard set to: {0}".format(data)
             self.send_clipboard(clip_sender)
 
     def set_text(self, text):
@@ -228,7 +227,7 @@ def main():
     if len(sys.argv) > 1:
         config_filename = sys.argv[1]
     else:
-        config_filename = '~/.clipman'
+        config_filename = '~/.clipman/conf.yml'
     clipman = ClipboardManager((config_filename))
     from twisted.internet import reactor
     reactor.run()

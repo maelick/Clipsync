@@ -65,7 +65,7 @@ def main():
     if len(sys.argv) > 1:
         config_filename = sys.argv[1]
     else:
-        config_filename = '~/.clipman'
+        config_filename = '~/.clipman/conf.yml'
 
     clipman = GTKClip(config_filename)
 
